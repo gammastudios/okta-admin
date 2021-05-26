@@ -1,19 +1,19 @@
-## okta-admin users get
+## okta-admin users listroles
 
-Fetches a user from your Okta organization.
+Lists all roles assigned to a user.
 
 ### Synopsis
 
-Fetches a user from your Okta organization.
+Lists all roles assigned to a user.
 
 ```
-okta-admin users get [flags]
+okta-admin users listroles [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for listroles
 ```
 
 ### Options inherited from parent commands

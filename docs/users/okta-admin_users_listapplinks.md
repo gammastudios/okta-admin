@@ -1,19 +1,19 @@
-## okta-admin users get
+## okta-admin users listapplinks
 
-Fetches a user from your Okta organization.
+Fetches appLinks for all direct or indirect (via group membership) assigned applications.
 
 ### Synopsis
 
-Fetches a user from your Okta organization.
+Fetches appLinks for all direct or indirect (via group membership) assigned applications.
 
 ```
-okta-admin users get [flags]
+okta-admin users listapplinks [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for listapplinks
 ```
 
 ### Options inherited from parent commands

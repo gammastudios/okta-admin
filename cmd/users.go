@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -49,18 +48,141 @@ var listUsersCmd = &cobra.Command{
 		queryParams := retQueryParams(filter)
 		// Get data
 		ctx, client := getOrCreateClient()
-		idps, _, err := client.User.ListUsers(ctx, queryParams)
+		users, _, err := client.User.ListUsers(ctx, queryParams)
 		if err != nil {
-			panic(err)
-		}
-		b, err := json.Marshal(idps)
-		if err != nil {
-			panic(err)
+			log.Println(err)
 		} else {
-			retResults(b, jsonquery)
+			b, err := json.Marshal(users)
+			if err != nil {
+				panic(err)
+			} else {
+				retResults(b, jsonquery)
+			}
 		}
 	},
 }
+
+//
+// okta-admin users get <userId>
+//
+var getUserCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Fetches a user from your Okta organization.",
+	Long:  `Fetches a user from your Okta organization.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Fetching user %s in %s", userId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		user, _, err := client.User.GetUser(ctx, userId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			b, err := json.Marshal(user)
+			if err != nil {
+				panic(err)
+			} else {
+				retResults(b, jsonquery)
+			}
+		}
+	},
+}
+
+//
+// okta-admin users listapplinks <userId>
+//
+var listAppLinksCmd = &cobra.Command{
+	Use:   "listapplinks",
+	Short: "Fetches appLinks for all direct or indirect (via group membership) assigned applications.",
+	Long:  `Fetches appLinks for all direct or indirect (via group membership) assigned applications.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Fetching appLinks for user %s in %s", userId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		applinks, _, err := client.User.ListAppLinks(ctx, userId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			b, err := json.Marshal(applinks)
+			if err != nil {
+				panic(err)
+			} else {
+				retResults(b, jsonquery)
+			}
+		}
+	},
+}
+
+//
+// okta-admin users listapptargets <userId> <roleId>
+//
+var listAppTgtsCmd = &cobra.Command{
+	Use:   "listapptargets",
+	Short: "Lists all App targets for an APP_ADMIN Role assigned to a User.",
+	Long: `Lists all App targets for an APP_ADMIN Role assigned to a User. 
+This methods return list may include full Applications or Instances. 
+The response for an instance will have an ID value, while Application will not have an ID.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		log.Printf("Listing App targets for user %s, role %s, in %s", userId, roleId, viper.GetString("org"))
+		queryParams := retQueryParams(filter)
+		// Get data
+		ctx, client := getOrCreateClient()
+		apptargets, _, err := client.User.ListApplicationTargetsForApplicationAdministratorRoleForUser(ctx, userId, roleId, queryParams)
+		if err != nil {
+			log.Println(err)
+		} else {
+			b, err := json.Marshal(apptargets)
+			if err != nil {
+				panic(err)
+			} else {
+				retResults(b, jsonquery)
+			}
+		}
+	},
+}
+
+//
+// okta-admin users listroles <userId> <roleId>
+//
+var listRolesCmd = &cobra.Command{
+	Use:   "listroles",
+	Short: "Lists all roles assigned to a user.",
+	Long:  `Lists all roles assigned to a user.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Listing roles for user %s in %s", userId, viper.GetString("org"))
+		queryParams := retQueryParams(filter)
+		// Get data
+		ctx, client := getOrCreateClient()
+		roles, _, err := client.User.ListAssignedRolesForUser(ctx, userId, queryParams)
+		if err != nil {
+			log.Println(err)
+		} else {
+			b, err := json.Marshal(roles)
+			if err != nil {
+				panic(err)
+			} else {
+				retResults(b, jsonquery)
+			}
+		}
+	},
+}
+
+/*
+ListGrantsForUserAndClient
+ListGroupTargetsForRole
+ListRefreshTokensForUserAndClient
+ListUserClients
+ListUserGrants
+ListUserGroups
+ListUserIdentityProviders
+GetLinkedObjectsForUser
+GetRefreshTokenForUserAndClient
+GetUserGrant
+*/
 
 /*
 ActivateUser
@@ -79,21 +201,6 @@ ExpirePassword
 ExpirePasswordAndGetTemporaryPassword
 ForgotPasswordGenerateOneTimeToken
 ForgotPasswordSetNewPassword
-GetLinkedObjectsForUser
-GetRefreshTokenForUserAndClient
-GetUser
-GetUserGrant
-ListAppLinks
-ListApplicationTargetsForApplicationAdministratorRoleForUser
-ListAssignedRolesForUser
-ListGrantsForUserAndClient
-ListGroupTargetsForRole
-ListRefreshTokensForUserAndClient
-ListUserClients
-ListUserGrants
-ListUserGroups
-ListUserIdentityProviders
-ListUsers
 PartialUpdateUser
 ReactivateUser
 RemoveApplicationTargetFromAdministratorRoleForUser
@@ -115,25 +222,14 @@ UnsuspendUser
 UpdateUser
 */
 
-//
-// okta-admin users get
-//
-var getUserCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Echo anything to the screen more times",
-	Long: `echo things multiple times back to the user by providing
-a count and a string.`,
-	//Args: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("get user called")
-	},
-}
-
 func init() {
 	rootCmd.AddCommand(usersCmd)
 	// add sub commands
 	usersCmd.AddCommand(listUsersCmd)
 	usersCmd.AddCommand(getUserCmd)
+	usersCmd.AddCommand(listAppLinksCmd)
+	usersCmd.AddCommand(listAppTgtsCmd)
+	usersCmd.AddCommand(listRolesCmd)
 
 	// add flags for sub commands
 	listUsersCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
