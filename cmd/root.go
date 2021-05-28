@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -32,6 +33,7 @@ import (
 var cfgFile string
 var filter string
 var jsonquery string
+var format bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -71,6 +73,10 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.okta-admin.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
+	rootCmd.PersistentFlags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
+
+	rootCmd.PersistentFlags().BoolVar(&format, "format", false, "format (pretty-print) json output")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -116,6 +122,7 @@ func retQueryParams(filter string) (queryParams *query.Params) {
 	return
 }
 
+/*
 func retResults(data []byte, jsonquery string) {
 	// Json query
 	if len(jsonquery) != 0 {
@@ -125,6 +132,33 @@ func retResults(data []byte, jsonquery string) {
 		fmt.Println(res)
 	} else {
 		fmt.Println(string(data))
+	}
+}
+*/
+
+func retResults(data interface{}, jsonquery string, format bool) {
+	// Marshal
+	var b []byte
+	var err error
+	if format {
+		b, err = json.MarshalIndent(data, "", " ")
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		b, err = json.Marshal(data)
+		if err != nil {
+			panic(err)
+		}
+	}
+	// Json query
+	if len(jsonquery) != 0 {
+		// jsonquery set
+		log.Printf("Json query specified: %s", jsonquery)
+		res := gjson.Get(string(b), jsonquery)
+		fmt.Println(res)
+	} else {
+		fmt.Println(string(b))
 	}
 }
 

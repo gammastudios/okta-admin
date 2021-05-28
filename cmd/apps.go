@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -47,15 +46,55 @@ var listAppsCmd = &cobra.Command{
 		queryParams := retQueryParams(filter)
 		// Get data
 		ctx, client := getOrCreateClient()
-		idps, _, err := client.Application.ListApplications(ctx, queryParams)
+		apps, _, err := client.Application.ListApplications(ctx, queryParams)
 		if err != nil {
-			panic(err)
-		}
-		b, err := json.Marshal(idps)
-		if err != nil {
-			panic(err)
+			log.Println(err)
 		} else {
-			retResults(b, jsonquery)
+			retResults(apps, jsonquery, format)
+		}
+	},
+}
+
+//
+// okta-admin apps deactivate <appId>
+//
+var deactivateAppCmd = &cobra.Command{
+	Use:   "deactivate <appId>",
+	Short: "Deactivates an active application.",
+	Long:  `Deactivates an active application.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		appId := args[0]
+		log.Printf("Deactivating application %s in %s", appId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		resp, err := client.Application.DeactivateApplication(ctx, appId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
+		}
+	},
+}
+
+//
+// okta-admin apps delete <appId>
+//
+var deleteAppCmd = &cobra.Command{
+	Use:   "delete <appId>",
+	Short: "Removes an inactive application.",
+	Long:  `Removes an inactive application.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		appId := args[0]
+		log.Printf("Deleting application %s in %s", appId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		resp, err := client.Application.DeleteApplication(ctx, appId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
 		}
 	},
 }
@@ -66,8 +105,6 @@ AssignUserToApplication
 CloneApplicationKey
 CreateApplication
 CreateApplicationGroupAssignment
-DeactivateApplication
-DeleteApplication
 DeleteApplicationGroupAssignment
 DeleteApplicationUser
 GenerateApplicationKey
@@ -103,6 +140,8 @@ UpdateApplicationUser
 func init() {
 	rootCmd.AddCommand(appsCmd)
 	appsCmd.AddCommand(listAppsCmd)
+	appsCmd.AddCommand(deactivateAppCmd)
+	appsCmd.AddCommand(deleteAppCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -114,8 +153,9 @@ func init() {
 	// is called directly, e.g.:
 	// usersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	listAppsCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
-	listAppsCmd.Flags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
+	//listAppsCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
+	//listAppsCmd.Flags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
+
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

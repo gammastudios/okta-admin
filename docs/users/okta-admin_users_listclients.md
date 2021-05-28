@@ -1,21 +1,19 @@
-## okta-admin users listapptargets
+## okta-admin users listclients
 
-Lists all App targets for an APP_ADMIN Role assigned to a User.
+Lists all client resources for which the specified user has grants or tokens.
 
 ### Synopsis
 
-Lists all App targets for an APP_ADMIN Role assigned to a User. 
-This methods return list may include full Applications or Instances. 
-The response for an instance will have an ID value, while Application will not have an ID.
+Lists all client resources for which the specified user has grants or tokens.
 
 ```
-okta-admin users listapptargets <userId> <roleId> [flags]
+okta-admin users listclients <userId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listapptargets
+  -h, --help   help for listclients
 ```
 
 ### Options inherited from parent commands

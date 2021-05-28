@@ -1,21 +1,19 @@
-## okta-admin users listapptargets
+## okta-admin users getrefreshtoken
 
-Lists all App targets for an APP_ADMIN Role assigned to a User.
+Gets a refresh token issued for the specified User and Client.
 
 ### Synopsis
 
-Lists all App targets for an APP_ADMIN Role assigned to a User. 
-This methods return list may include full Applications or Instances. 
-The response for an instance will have an ID value, while Application will not have an ID.
+Gets a refresh token issued for the specified User and Client.
 
 ```
-okta-admin users listapptargets <userId> <roleId> [flags]
+okta-admin users getrefreshtoken <userId> <clientId> <tokenId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listapptargets
+  -h, --help   help for getrefreshtoken
 ```
 
 ### Options inherited from parent commands

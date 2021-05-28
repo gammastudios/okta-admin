@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps delete
 
-Enumerates apps added to your organization.
+Removes an inactive application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Removes an inactive application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps delete <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for delete
 ```
 
 ### SEE ALSO

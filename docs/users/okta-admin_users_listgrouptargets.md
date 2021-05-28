@@ -1,21 +1,19 @@
-## okta-admin users listapptargets
+## okta-admin users listgrouptargets
 
-Lists all App targets for an APP_ADMIN Role assigned to a User.
+List Group Targets for a given User in a specified Role.
 
 ### Synopsis
 
-Lists all App targets for an APP_ADMIN Role assigned to a User. 
-This methods return list may include full Applications or Instances. 
-The response for an instance will have an ID value, while Application will not have an ID.
+List Group Targets for a given User in a specified Role.
 
 ```
-okta-admin users listapptargets <userId> <roleId> [flags]
+okta-admin users listgrouptargets <userId> <roleId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listapptargets
+  -h, --help   help for listgrouptargets
 ```
 
 ### Options inherited from parent commands

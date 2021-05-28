@@ -1,21 +1,19 @@
-## okta-admin users listapptargets
+## okta-admin users getlinkedobjects
 
-Lists all App targets for an APP_ADMIN Role assigned to a User.
+Get linked objects for a user, relationshipName can be a primary or associated relationship name.
 
 ### Synopsis
 
-Lists all App targets for an APP_ADMIN Role assigned to a User. 
-This methods return list may include full Applications or Instances. 
-The response for an instance will have an ID value, while Application will not have an ID.
+Get linked objects for a user, relationshipName can be a primary or associated relationship name.
 
 ```
-okta-admin users listapptargets <userId> <roleId> [flags]
+okta-admin users getlinkedobjects <userId> <relationshipName> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listapptargets
+  -h, --help   help for getlinkedobjects
 ```
 
 ### Options inherited from parent commands

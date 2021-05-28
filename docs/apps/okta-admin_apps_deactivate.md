@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps deactivate
 
-Enumerates apps added to your organization.
+Deactivates an active application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Deactivates an active application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps deactivate <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for deactivate
 ```
 
 ### SEE ALSO

@@ -1,21 +1,19 @@
-## okta-admin users listapptargets
+## okta-admin users listidps
 
-Lists all App targets for an APP_ADMIN Role assigned to a User.
+Lists the Identity Providers (IdPs) associated with the user.
 
 ### Synopsis
 
-Lists all App targets for an APP_ADMIN Role assigned to a User. 
-This methods return list may include full Applications or Instances. 
-The response for an instance will have an ID value, while Application will not have an ID.
+Lists the Identity Providers (IdPs) associated with the user.
 
 ```
-okta-admin users listapptargets <userId> <roleId> [flags]
+okta-admin users listidps <userId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listapptargets
+  -h, --help   help for listidps
 ```
 
 ### Options inherited from parent commands

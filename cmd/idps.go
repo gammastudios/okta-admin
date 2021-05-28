@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -46,15 +45,100 @@ var listIdpsCmd = &cobra.Command{
 		queryParams := retQueryParams(filter)
 		// Get data
 		ctx, client := getOrCreateClient()
-		idps, _, err := client.IdentityProvider.ListIdentityProviders(ctx, queryParams)
+		data, _, err := client.IdentityProvider.ListIdentityProviders(ctx, queryParams)
 		if err != nil {
-			panic(err)
-		}
-		b, err := json.Marshal(idps)
-		if err != nil {
-			panic(err)
+			log.Println(err)
 		} else {
-			retResults(b, jsonquery)
+			retResults(data, jsonquery, format)
+		}
+	},
+}
+
+//
+// okta-admin idps listusers <idpId>
+//
+var listUsersForIdpCmd = &cobra.Command{
+	Use:   "listusers <idpId>",
+	Short: "Find all the users linked to an identity provider.",
+	Long:  `Find all the users linked to an identity provider.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		log.Printf("Listing users linked to idps %s in %s", idpId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		data, _, err := client.IdentityProvider.ListIdentityProviderApplicationUsers(ctx, idpId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			retResults(data, jsonquery, format)
+		}
+	},
+}
+
+//
+// okta-admin idps unlinkuser <idpId> <userId>
+//
+var unlinkUserFromIdpCmd = &cobra.Command{
+	Use:   "unlinkuser <idpId> <userId>",
+	Short: "Removes the link between the Okta user and the IdP user.",
+	Long:  `Removes the link between the Okta user and the IdP user.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		userId := args[1]
+		log.Printf("Unlinking user %s from idp %s in %s", userId, idpId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		resp, err := client.IdentityProvider.UnlinkUserFromIdentityProvider(ctx, idpId, userId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
+		}
+	},
+}
+
+//
+// okta-admin idps deactivate <idpId>
+//
+var deactivateIdpCmd = &cobra.Command{
+	Use:   "deactivate <idpId>",
+	Short: "Deactivates an active IdP.",
+	Long:  `Deactivates an active IdP.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		log.Printf("Deactivating idp %s in %s", idpId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		_, resp, err := client.IdentityProvider.DeactivateIdentityProvider(ctx, idpId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
+		}
+	},
+}
+
+//
+// okta-admin idps delete <idpId>
+//
+var deleteIdpCmd = &cobra.Command{
+	Use:   "delete <idpId>",
+	Short: "Removes an IdP from your organization.",
+	Long:  `Removes an IdP from your organization.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		log.Printf("Deleting idp %s in %s", idpId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		resp, err := client.IdentityProvider.DeleteIdentityProvider(ctx, idpId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
 		}
 	},
 }
@@ -64,8 +148,6 @@ ActivateIdentityProvider
 CloneIdentityProviderKey
 CreateIdentityProvider
 CreateIdentityProviderKey
-DeactivateIdentityProvider
-DeleteIdentityProvider
 DeleteIdentityProviderKey
 GenerateCsrForIdentityProvider
 GenerateIdentityProviderSigningKey
@@ -76,7 +158,6 @@ GetIdentityProviderKey
 GetIdentityProviderSigningKey
 LinkUserToIdentityProvider
 ListCsrsForIdentityProvider
-ListIdentityProviderApplicationUsers
 ListIdentityProviderKeys
 ListIdentityProviderSigningKeys
 ListIdentityProviders
@@ -87,13 +168,16 @@ PublishBinaryPemCertForIdentityProvider
 PublishCerCertForIdentityProvider
 PublishDerCertForIdentityProvider
 RevokeCsrForIdentityProvider
-UnlinkUserFromIdentityProvider
 UpdateIdentityProvider
 */
 
 func init() {
 	rootCmd.AddCommand(idpsCmd)
 	idpsCmd.AddCommand(listIdpsCmd)
+	idpsCmd.AddCommand(listUsersForIdpCmd)
+	idpsCmd.AddCommand(unlinkUserFromIdpCmd)
+	idpsCmd.AddCommand(deactivateIdpCmd)
+	idpsCmd.AddCommand(deleteIdpCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -105,8 +189,8 @@ func init() {
 	// is called directly, e.g.:
 	// usersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	listIdpsCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
-	listIdpsCmd.Flags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
+	//listIdpsCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
+	//listIdpsCmd.Flags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
