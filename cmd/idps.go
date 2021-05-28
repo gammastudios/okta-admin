@@ -16,8 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"log"
 
+	"github.com/okta/okta-sdk-golang/v2/okta"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -143,16 +145,140 @@ var deleteIdpCmd = &cobra.Command{
 	},
 }
 
+//
+// okta-admin idps get <idpId>
+//
+var getIdpCmd = &cobra.Command{
+	Use:   "get <idpId>",
+	Short: "Fetches an IdP by ID.",
+	Long:  `Fetches an IdP by ID.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		log.Printf("Fetching idp %s in %s", idpId, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		data, _, err := client.IdentityProvider.GetIdentityProvider(ctx, idpId)
+		if err != nil {
+			log.Println(err)
+		} else {
+			retResults(data, jsonquery, format)
+		}
+	},
+}
+
+//
+// okta-admin idps create <jsonBody>
+//
+var createIdpCmd = &cobra.Command{
+	Use:   "create <jsonBody>",
+	Short: "Adds a new IdP to your organization.",
+	Long:  `Adds a new IdP to your organization.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		jsonBody := args[0]
+		log.Printf("Creating new idp in %s", viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		var body *okta.IdentityProvider
+		body = new(okta.IdentityProvider)
+		json.Unmarshal([]byte(jsonBody), &body)
+		_, resp, err := client.IdentityProvider.CreateIdentityProvider(ctx, *body)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
+		}
+	},
+}
+
+//
+// okta-admin idps createmsft <name> <clientId> <clientSecret>
+//
+var createMsftIdpCmd = &cobra.Command{
+	Use:   "createmsft <name> <clientId> <clientSecret>",
+	Short: "Adds a new Microsoft SSO IdP to your organization.",
+	Long:  `Adds a new Microsoft SSO IdP to your organization.`,
+	Args:  cobra.ExactArgs(3),
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+		clientId := args[1]
+		clientSecret := args[2]
+		log.Printf("Creating new Microsoft idp %s in %s", name, viper.GetString("org"))
+		// Get data
+		ctx, client := getOrCreateClient()
+		var body *okta.IdentityProvider
+		body = new(okta.IdentityProvider)
+		data := `
+		{
+			"protocol": {
+			 "credentials": {
+			  "client": {
+			   "client_id": "",
+			   "client_secret": ""
+			  }
+			 },
+			 "scopes": [
+			  "https://graph.microsoft.com/User.Read",
+			  "email",
+			  "openid",
+			  "profile"
+			 ],
+			 "type": "OIDC"
+			},
+			"status": "ACTIVE",
+			"type": "MICROSOFT",
+			"name": "",
+			"policy": {
+				"accountLink": {
+				 "action": "AUTO"
+				},
+				"provisioning": {
+				 "action": "DISABLED",
+				 "conditions": {
+				  "deprovisioned": {
+				   "action": "NONE"
+				  },
+				  "suspended": {
+				   "action": "NONE"
+				  }
+				 },
+				 "groups": {
+				  "action": "NONE"
+				 },
+				 "profileMaster": false
+				},
+				"subject": {
+				 "matchType": "USERNAME",
+				 "userNameTemplate": {
+				  "template": "idpuser.userPrincipalName"
+				 }
+				}
+			   }
+		   }
+		`
+		json.Unmarshal([]byte(data), &body)
+		body.Name = name
+		body.Protocol.Credentials.Client.ClientId = clientId
+		body.Protocol.Credentials.Client.ClientSecret = clientSecret
+		_, resp, err := client.IdentityProvider.CreateIdentityProvider(ctx, *body)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(resp.Status)
+		}
+	},
+}
+
 /*
 ActivateIdentityProvider
 CloneIdentityProviderKey
-CreateIdentityProvider
 CreateIdentityProviderKey
 DeleteIdentityProviderKey
 GenerateCsrForIdentityProvider
 GenerateIdentityProviderSigningKey
 GetCsrForIdentityProvider
-GetIdentityProvider
+
 GetIdentityProviderApplicationUser
 GetIdentityProviderKey
 GetIdentityProviderSigningKey
@@ -178,6 +304,9 @@ func init() {
 	idpsCmd.AddCommand(unlinkUserFromIdpCmd)
 	idpsCmd.AddCommand(deactivateIdpCmd)
 	idpsCmd.AddCommand(deleteIdpCmd)
+	idpsCmd.AddCommand(getIdpCmd)
+	idpsCmd.AddCommand(createIdpCmd)
+	idpsCmd.AddCommand(createMsftIdpCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -18,8 +18,11 @@ okta-admin idps list
 ### SEE ALSO
 
 * [okta-admin](okta-admin.md)	 - A brief description of your application
+* [okta-admin idps create](okta-admin_idps_create.md)	 - Adds a new IdP to your organization.
+* [okta-admin idps createmsft](okta-admin_idps_createmsft.md)	 - Adds a new Microsoft SSO IdP to your organization.
 * [okta-admin idps deactivate](okta-admin_idps_deactivate.md)	 - Deactivates an active IdP.
 * [okta-admin idps delete](okta-admin_idps_delete.md)	 - Removes an IdP from your organization.
+* [okta-admin idps get](okta-admin_idps_get.md)	 - Fetches an IdP by ID.
 * [okta-admin idps list](okta-admin_idps_list.md)	 - Enumerates IdPs in your organization with pagination.
 * [okta-admin idps listusers](okta-admin_idps_listusers.md)	 - Find all the users linked to an identity provider.
 * [okta-admin idps unlinkuser](okta-admin_idps_unlinkuser.md)	 - Removes the link between the Okta user and the IdP user.
