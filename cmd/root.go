@@ -122,7 +122,7 @@ func retQueryParams(filter string) (queryParams *query.Params) {
 	return
 }
 
-func retResults(data interface{}, jsonquery string, format bool) {
+func retResults(data interface{}, jsonquery string) {
 	// Marshal
 	var b []byte
 	var err error
@@ -145,6 +145,17 @@ func retResults(data interface{}, jsonquery string, format bool) {
 		fmt.Println(res)
 	} else {
 		fmt.Println(string(b))
+	}
+}
+
+func processOutput(data interface{}, resp *okta.Response, err error) {
+	if err != nil {
+		log.Println(err)
+	} else {
+		log.Println(resp.Status)
+		if data != nil {
+			retResults(data, jsonquery)
+		}
 	}
 }
 

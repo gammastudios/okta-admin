@@ -50,7 +50,8 @@ var listAppsCmd = &cobra.Command{
 		if err != nil {
 			log.Println(err)
 		} else {
-			retResults(apps, jsonquery, format)
+			log.Println(apps)
+			//retResults(apps, jsonquery, format)
 		}
 	},
 }

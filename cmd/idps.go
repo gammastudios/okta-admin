@@ -45,16 +45,10 @@ var listIdpsCmd = &cobra.Command{
 	Short: "Enumerates IdPs in your organization with pagination.",
 	Long:  `Enumerates IdPs in your organization with pagination. A subset of IdPs can be returned that match a supported filter expression or query.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Printf("Listing idps in %s", viper.GetString("org"))
 		queryParams := retQueryParams(filter)
-		// Get data
+		log.Printf("Listing idps in %s", viper.GetString("org"))
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.ListIdentityProviders(ctx, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.ListIdentityProviders(ctx, queryParams))
 	},
 }
 
@@ -67,14 +61,8 @@ var listUsersForIdpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		idpId := args[0]
 		log.Printf("Listing users linked to idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.ListIdentityProviderApplicationUsers(ctx, idpId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.ListIdentityProviderApplicationUsers(ctx, idpId))
 	},
 }
 
@@ -87,14 +75,8 @@ var listCsrsForIdpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		idpId := args[0]
 		log.Printf("Listing csrs for idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.ListCsrsForIdentityProvider(ctx, idpId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.ListCsrsForIdentityProvider(ctx, idpId))
 	},
 }
 
@@ -106,25 +88,15 @@ var listIdpKeysCmd = &cobra.Command{
 	Long:  `Enumerates keys or signing key credentials for an IdP if specified.`,
 	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
-		var idpId string
-		var data interface{}
-		var err error
 		queryParams := retQueryParams(filter)
 		ctx, client := getOrCreateClient()
 		if len(args) == 1 {
-			idpId = args[0]
+			idpId := args[0]
 			log.Printf("Listing signing key credentials for IdP %s in %s", idpId, viper.GetString("org"))
-			// Get data
-			data, _, err = client.IdentityProvider.ListIdentityProviderSigningKeys(ctx, idpId)
+			processOutput(client.IdentityProvider.ListIdentityProviderSigningKeys(ctx, idpId))
 		} else {
 			log.Printf("Listing idp keys in %s", viper.GetString("org"))
-			// Get data
-			data, _, err = client.IdentityProvider.ListIdentityProviderKeys(ctx, queryParams)
-		}
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
+			processOutput(client.IdentityProvider.ListIdentityProviderKeys(ctx, queryParams))
 		}
 	},
 }
@@ -139,14 +111,8 @@ var listSocialAuthTokensCmd = &cobra.Command{
 		idpId := args[0]
 		userId := args[1]
 		log.Printf("Fetching social auth tokens for idp %s, user %s, in %s", idpId, userId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.ListSocialAuthTokens(ctx, idpId, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.ListSocialAuthTokens(ctx, idpId, userId))
 	},
 }
 
@@ -159,14 +125,8 @@ var getIdpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		idpId := args[0]
 		log.Printf("Fetching idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.GetIdentityProvider(ctx, idpId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GetIdentityProvider(ctx, idpId))
 	},
 }
 
@@ -180,14 +140,8 @@ var getCsrCmd = &cobra.Command{
 		idpId := args[0]
 		csrId := args[1]
 		log.Printf("Fetching csr %s for idp %s in %s", csrId, idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.GetCsrForIdentityProvider(ctx, idpId, csrId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GetCsrForIdentityProvider(ctx, idpId, csrId))
 	},
 }
 
@@ -201,14 +155,8 @@ var getIdpUserCmd = &cobra.Command{
 		idpId := args[0]
 		userId := args[1]
 		log.Printf("Fetching user %s for idp %s in %s", userId, idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.GetIdentityProviderApplicationUser(ctx, idpId, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GetIdentityProviderApplicationUser(ctx, idpId, userId))
 	},
 }
 
@@ -221,14 +169,8 @@ var getIdpKeyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		keyId := args[0]
 		log.Printf("Fetching key %s in %s", keyId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.GetIdentityProviderKey(ctx, keyId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GetIdentityProviderKey(ctx, keyId))
 	},
 }
 
@@ -242,14 +184,8 @@ var getIdpSigningKeyCmd = &cobra.Command{
 		idpId := args[0]
 		keyId := args[1]
 		log.Printf("Fetching key %s for idp %s in %s", keyId, idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.IdentityProvider.GetIdentityProviderSigningKey(ctx, idpId, keyId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GetIdentityProviderSigningKey(ctx, idpId, keyId))
 	},
 }
 
@@ -267,18 +203,11 @@ var generateCsrCmd = &cobra.Command{
 		idpId := args[0]
 		jsonBody := args[1]
 		log.Printf("Generating CSR for idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		var body *okta.CsrMetadata
 		body = new(okta.CsrMetadata)
 		json.Unmarshal([]byte(jsonBody), &body)
-		data, resp, err := client.IdentityProvider.GenerateCsrForIdentityProvider(ctx, idpId, *body)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GenerateCsrForIdentityProvider(ctx, idpId, *body))
 	},
 }
 
@@ -289,18 +218,11 @@ var generateKeyCmd = &cobra.Command{
 	Long:  `Generates a new X.509 certificate for an IdP signing key credential to be used for signing assertions sent to the IdP.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		queryParams := retQueryParams(filter)
 		idpId := args[0]
+		queryParams := retQueryParams(filter)
 		log.Printf("Generating key for idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, resp, err := client.IdentityProvider.GenerateIdentityProviderSigningKey(ctx, idpId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.IdentityProvider.GenerateIdentityProviderSigningKey(ctx, idpId, queryParams))
 	},
 }
 
@@ -317,14 +239,8 @@ var deactivateIdpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		idpId := args[0]
 		log.Printf("Deactivating idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		_, resp, err := client.IdentityProvider.DeactivateIdentityProvider(ctx, idpId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.DeactivateIdentityProvider(ctx, idpId))
 	},
 }
 
@@ -337,14 +253,9 @@ var deleteIdpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		idpId := args[0]
 		log.Printf("Deleting idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		resp, err := client.IdentityProvider.DeleteIdentityProvider(ctx, idpId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(nil, resp, err)
 	},
 }
 
@@ -357,14 +268,8 @@ var activateIdpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		idpId := args[0]
 		log.Printf("Activating idp %s in %s", idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		_, resp, err := client.IdentityProvider.ActivateIdentityProvider(ctx, idpId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.ActivateIdentityProvider(ctx, idpId))
 	},
 }
 
@@ -379,14 +284,8 @@ var cloneIdpKeyCmd = &cobra.Command{
 		keyId := args[1]
 		queryParams := retQueryParams(filter)
 		log.Printf("Cloning key %s for idp %s in %s", keyId, idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		_, resp, err := client.IdentityProvider.CloneIdentityProviderKey(ctx, idpId, keyId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.CloneIdentityProviderKey(ctx, idpId, keyId, queryParams))
 	},
 }
 
@@ -399,14 +298,9 @@ var deleteIdpKeyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		keyId := args[0]
 		log.Printf("Deleting key %s in %s", keyId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		resp, err := client.IdentityProvider.DeleteIdentityProviderKey(ctx, keyId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(nil, resp, err)
 	},
 }
 
@@ -423,14 +317,8 @@ var linkUserToIdpCmd = &cobra.Command{
 		log.Printf("Linking user %s to idp %s in %s", userId, idpId, viper.GetString("org"))
 		var body okta.UserIdentityProviderLinkRequest
 		json.Unmarshal([]byte(jsonBody), &body)
-		// Get data
 		ctx, client := getOrCreateClient()
-		_, resp, err := client.IdentityProvider.LinkUserToIdentityProvider(ctx, idpId, userId, body)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.LinkUserToIdentityProvider(ctx, idpId, userId, body))
 	},
 }
 
@@ -444,14 +332,9 @@ var unlinkUserFromIdpCmd = &cobra.Command{
 		idpId := args[0]
 		userId := args[1]
 		log.Printf("Unlinking user %s from idp %s in %s", userId, idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		resp, err := client.IdentityProvider.UnlinkUserFromIdentityProvider(ctx, idpId, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(nil, resp, err)
 	},
 }
 
@@ -462,30 +345,22 @@ var publishBinaryCertForIdpCmd = &cobra.Command{
 	Long:  `Update the Certificate Signing Request with a signed X.509 certificate and add it into the signing key credentials for the IdP.`,
 	Args:  cobra.ExactArgs(4),
 	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-		var resp *okta.Response
 		idpId := args[0]
 		csrId := args[1]
 		body := args[2]
 		certtype := args[3]
 		if certtype == "cer" || certtype == "der" || certtype == "pem" {
 			log.Printf("Publishing cert (%s) csr %s for idp %s in %s", certtype, csrId, idpId, viper.GetString("org"))
-			// Get data
 			ctx, client := getOrCreateClient()
 			switch certtype {
 			case "cer":
-				_, resp, err = client.IdentityProvider.PublishBinaryCerCertForIdentityProvider(ctx, idpId, csrId, body)
+				processOutput(client.IdentityProvider.PublishBinaryCerCertForIdentityProvider(ctx, idpId, csrId, body))
 				/* has same signature as PublishCerCertForIdentityProvider */
 			case "der":
-				_, resp, err = client.IdentityProvider.PublishBinaryDerCertForIdentityProvider(ctx, idpId, csrId, body)
+				processOutput(client.IdentityProvider.PublishBinaryDerCertForIdentityProvider(ctx, idpId, csrId, body))
 				/* has same signature as PublishDerCertForIdentityProvider */
 			case "pem":
-				_, resp, err = client.IdentityProvider.PublishBinaryPemCertForIdentityProvider(ctx, idpId, csrId, body)
-			}
-			if err != nil {
-				log.Println(err)
-			} else {
-				log.Println(resp.Status)
+				processOutput(client.IdentityProvider.PublishBinaryPemCertForIdentityProvider(ctx, idpId, csrId, body))
 			}
 		} else {
 			log.Println("certtype argument must be 'cer', 'der' or 'pem' only")
@@ -503,14 +378,9 @@ var revokeCsrCmd = &cobra.Command{
 		idpId := args[0]
 		csrId := args[1]
 		log.Printf("Revoking csr %s from idp %s in %s", csrId, idpId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		resp, err := client.IdentityProvider.RevokeCsrForIdentityProvider(ctx, idpId, csrId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(nil, resp, err)
 	},
 }
 
@@ -532,12 +402,7 @@ var createIdpCmd = &cobra.Command{
 		var body *okta.IdentityProvider
 		body = new(okta.IdentityProvider)
 		json.Unmarshal([]byte(jsonBody), &body)
-		_, resp, err := client.IdentityProvider.CreateIdentityProvider(ctx, *body)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.CreateIdentityProvider(ctx, *body))
 	},
 }
 
@@ -552,7 +417,6 @@ var createMsftIdpCmd = &cobra.Command{
 		clientId := args[1]
 		clientSecret := args[2]
 		log.Printf("Creating new Microsoft idp %s in %s", name, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		var body *okta.IdentityProvider
 		body = new(okta.IdentityProvider)
@@ -608,12 +472,7 @@ var createMsftIdpCmd = &cobra.Command{
 		body.Name = name
 		body.Protocol.Credentials.Client.ClientId = clientId
 		body.Protocol.Credentials.Client.ClientSecret = clientSecret
-		_, resp, err := client.IdentityProvider.CreateIdentityProvider(ctx, *body)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.CreateIdentityProvider(ctx, *body))
 	},
 }
 
@@ -626,17 +485,11 @@ var createIdpKeyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		jsonBody := args[0]
 		log.Printf("Creating new X.509 certificate credential in %s", viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		var body *okta.JsonWebKey
 		body = new(okta.JsonWebKey)
 		json.Unmarshal([]byte(jsonBody), &body)
-		_, resp, err := client.IdentityProvider.CreateIdentityProviderKey(ctx, *body)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.CreateIdentityProviderKey(ctx, *body))
 	},
 }
 
@@ -654,12 +507,7 @@ var updateIdpCmd = &cobra.Command{
 		ctx, client := getOrCreateClient()
 		var body okta.IdentityProvider
 		json.Unmarshal([]byte(jsonBody), &body)
-		_, resp, err := client.IdentityProvider.UpdateIdentityProvider(ctx, idpId, body)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(client.IdentityProvider.UpdateIdentityProvider(ctx, idpId, body))
 	},
 }
 

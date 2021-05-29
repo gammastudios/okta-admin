@@ -16,8 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"log"
 
+	"github.com/okta/okta-sdk-golang/v2/okta"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,29 +38,23 @@ okta-admin users create
 }
 
 //
-// okta-admin users list
+// Query Operations (return data)
 //
+
+// okta-admin users list
 var listUsersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists users in your organization.",
 	Long:  `Lists users in your organization.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Printf("Listing users in %s", viper.GetString("org"))
 		queryParams := retQueryParams(filter)
-		// Get data
+		log.Printf("Listing users in %s", viper.GetString("org"))
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListUsers(ctx, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListUsers(ctx, queryParams))
 	},
 }
 
-//
 // okta-admin users get <userId>
-//
 var getUserCmd = &cobra.Command{
 	Use:   "get <userId>",
 	Short: "Fetches a user from your Okta organization.",
@@ -67,20 +63,12 @@ var getUserCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
 		log.Printf("Fetching user %s in %s", userId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.GetUser(ctx, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.GetUser(ctx, userId))
 	},
 }
 
-//
 // okta-admin users listapplinks <userId>
-//
 var listAppLinksCmd = &cobra.Command{
 	Use:   "listapplinks <userId>",
 	Short: "Fetches appLinks for all direct or indirect (via group membership) assigned applications.",
@@ -89,20 +77,12 @@ var listAppLinksCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
 		log.Printf("Fetching appLinks for user %s in %s", userId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListAppLinks(ctx, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListAppLinks(ctx, userId))
 	},
 }
 
-//
 // okta-admin users listapptargets <userId> <roleId>
-//
 var listAppTgtsCmd = &cobra.Command{
 	Use:   "listapptargets <userId> <roleId>",
 	Short: "Lists all App targets for an APP_ADMIN Role assigned to a User.",
@@ -113,22 +93,14 @@ The response for an instance will have an ID value, while Application will not h
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
 		roleId := args[1]
-		log.Printf("Listing App targets for user %s, role %s, in %s", userId, roleId, viper.GetString("org"))
 		queryParams := retQueryParams(filter)
-		// Get data
+		log.Printf("Listing App targets for user %s, role %s, in %s", userId, roleId, viper.GetString("org"))
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListApplicationTargetsForApplicationAdministratorRoleForUser(ctx, userId, roleId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListApplicationTargetsForApplicationAdministratorRoleForUser(ctx, userId, roleId, queryParams))
 	},
 }
 
-//
 // okta-admin users listroles <userId>
-//
 var listRolesCmd = &cobra.Command{
 	Use:   "listroles <userId>",
 	Short: "Lists all roles assigned to a user.",
@@ -136,22 +108,14 @@ var listRolesCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
-		log.Printf("Listing roles for user %s in %s", userId, viper.GetString("org"))
 		queryParams := retQueryParams(filter)
-		// Get data
+		log.Printf("Listing roles for user %s in %s", userId, viper.GetString("org"))
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListAssignedRolesForUser(ctx, userId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListAssignedRolesForUser(ctx, userId, queryParams))
 	},
 }
 
-//
 // okta-admin users listgrants <userId> [<clientId>]
-//
 var listGrantsCmd = &cobra.Command{
 	// overloaded command
 	Use:   "listgrants <userId> [<clientId>]",
@@ -160,32 +124,21 @@ var listGrantsCmd = &cobra.Command{
 	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		var clientId string
-		var data interface{}
-		var err error
+		userId := args[0]
 		queryParams := retQueryParams(filter)
 		ctx, client := getOrCreateClient()
-		userId := args[0]
 		if len(args) == 2 {
 			clientId = args[1]
 			log.Printf("Listing grants for user %s, client %s, in %s", userId, clientId, viper.GetString("org"))
-			// Get data
-			data, _, err = client.User.ListGrantsForUserAndClient(ctx, userId, clientId, queryParams)
+			processOutput(client.User.ListGrantsForUserAndClient(ctx, userId, clientId, queryParams))
 		} else {
 			log.Printf("Listing grants for user %s in %s", userId, viper.GetString("org"))
-			// Get data
-			data, _, err = client.User.ListUserGrants(ctx, userId, queryParams)
-		}
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
+			processOutput(client.User.ListUserGrants(ctx, userId, queryParams))
 		}
 	},
 }
 
-//
 // okta-admin users listclients <userId>
-//
 var listClientsCmd = &cobra.Command{
 	Use:   "listclients <userId>",
 	Short: "Lists all client resources for which the specified user has grants or tokens.",
@@ -194,20 +147,12 @@ var listClientsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
 		log.Printf("Listing clients for user %s in %s", userId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListUserClients(ctx, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListUserClients(ctx, userId))
 	},
 }
 
-//
 // okta-admin users listgrouptargets <userId> <roleId>
-//
 var listGroupTargetsCmd = &cobra.Command{
 	Use:   "listgrouptargets <userId> <roleId>",
 	Short: "List Group Targets for a given User in a specified Role.",
@@ -218,20 +163,12 @@ var listGroupTargetsCmd = &cobra.Command{
 		roleId := args[1]
 		queryParams := retQueryParams(filter)
 		log.Printf("Listing group targets for user %s, role %s, in %s", userId, roleId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListGroupTargetsForRole(ctx, userId, roleId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListGroupTargetsForRole(ctx, userId, roleId, queryParams))
 	},
 }
 
-//
 // okta-admin users listrefreshtokens <userId> <clientId>
-//
 var listRefreshTokensCmd = &cobra.Command{
 	Use:   "listrefreshtokens <userId> <clientId>",
 	Short: "Lists all refresh tokens issued for the specified User and Client.",
@@ -242,20 +179,12 @@ var listRefreshTokensCmd = &cobra.Command{
 		clientId := args[1]
 		queryParams := retQueryParams(filter)
 		log.Printf("Listing refresh tokens for user %s, client %s, in %s", userId, clientId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListRefreshTokensForUserAndClient(ctx, userId, clientId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListRefreshTokensForUserAndClient(ctx, userId, clientId, queryParams))
 	},
 }
 
-//
 // okta-admin users listgroups <userId>
-//
 var listUserGroupsCmd = &cobra.Command{
 	Use:   "listgroups <userId>",
 	Short: "Fetches the groups of which the user is a member.",
@@ -264,20 +193,12 @@ var listUserGroupsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
 		log.Printf("Listing groups for user %s in %s", userId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListUserGroups(ctx, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListUserGroups(ctx, userId))
 	},
 }
 
-//
 // okta-admin users listidps <userId>
-//
 var listIdentityProvidersCmd = &cobra.Command{
 	Use:   "listidps <userId>",
 	Short: "Lists the Identity Providers (IdPs) associated with the user.",
@@ -286,20 +207,12 @@ var listIdentityProvidersCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		userId := args[0]
 		log.Printf("Listing identity providers for user %s in %s", userId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.ListUserIdentityProviders(ctx, userId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.ListUserIdentityProviders(ctx, userId))
 	},
 }
 
-//
 // okta-admin users getlinkedobjects <userId> <relationshipName>
-//
 var getLinkedObjectsCmd = &cobra.Command{
 	Use:   "getlinkedobjects <userId> <relationshipName>",
 	Short: "Get linked objects for a user, relationshipName can be a primary or associated relationship name.",
@@ -310,20 +223,12 @@ var getLinkedObjectsCmd = &cobra.Command{
 		relationshipName := args[1]
 		queryParams := retQueryParams(filter)
 		log.Printf("Getting linked objects for user %s, relationshipName %s, in %s", userId, relationshipName, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.GetLinkedObjectsForUser(ctx, userId, relationshipName, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.GetLinkedObjectsForUser(ctx, userId, relationshipName, queryParams))
 	},
 }
 
-//
 // okta-admin users getrefreshtoken <userId> <clientId> <tokenId>
-//
 var getRefreshTokenCmd = &cobra.Command{
 	Use:   "getrefreshtoken <userId> <clientId> <tokenId>",
 	Short: "Gets a refresh token issued for the specified User and Client.",
@@ -335,20 +240,12 @@ var getRefreshTokenCmd = &cobra.Command{
 		tokenId := args[2]
 		queryParams := retQueryParams(filter)
 		log.Printf("Getting refresh token for user %s, client %s, tokenId %s, in %s", userId, clientId, tokenId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.GetRefreshTokenForUserAndClient(ctx, userId, clientId, tokenId, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			retResults(data, jsonquery, format)
-		}
+		processOutput(client.User.GetRefreshTokenForUserAndClient(ctx, userId, clientId, tokenId, queryParams))
 	},
 }
 
-//
 // okta-admin users getusergrant <userId> <grantId>
-//
 var getUserGrantCmd = &cobra.Command{
 	Use:   "getusergrant <userId> <grantId>",
 	Short: "Gets a grant for the specified user.",
@@ -359,54 +256,306 @@ var getUserGrantCmd = &cobra.Command{
 		grantId := args[1]
 		queryParams := retQueryParams(filter)
 		log.Printf("Getting user grant for user %s, grant %s, in %s", userId, grantId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
-		data, _, err := client.User.GetUserGrant(ctx, userId, grantId, queryParams)
-		if err != nil {
-			log.Println(err)
+		processOutput(client.User.GetUserGrant(ctx, userId, grantId, queryParams))
+	},
+}
+
+//
+// Action Operations (return resp code)
+//
+
+// okta-admin users activate <userId>
+var activateUserCmd = &cobra.Command{
+	Use:   "activate <userId>",
+	Short: "Activates a user.",
+	Long:  `Activates a user. This operation can only be performed on users with a STAGED status. Activation of a user is an asynchronous operation. The user will have the transitioningToStatus property with a value of ACTIVE during activation to indicate that the user hasnt completed the asynchronous operation. The user will have a status of ACTIVE when the activation process is complete.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Activating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.User.ActivateUser(ctx, userId, queryParams))
+	},
+}
+
+// okta-admin users deactivate <userId>
+var deactivateUserCmd = &cobra.Command{
+	Use:   "deactivate <userId>",
+	Short: "Deactivates a user.",
+	Long:  `Deactivates a user. This operation can only be performed on users that do not have a DEPROVISIONED status. Deactivation of a user is an asynchronous operation. The user will have the transitioningToStatus property with a value of DEPROVISIONED during deactivation to indicate that the user hasnt completed the asynchronous operation. The user will have a status of DEPROVISIONED when the deactivation process is complete.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Deactivating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.DeactivateUser(ctx, userId, queryParams)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users reactivate <userId>
+var reactivateUserCmd = &cobra.Command{
+	Use:   "reactivate <userId>",
+	Short: "Reactivates a user.",
+	Long:  `Reactivates a user. This operation can only be performed on users with a PROVISIONED status. This operation restarts the activation workflow if for some reason the user activation was not completed when using the activationToken from [Activate User](#activate-user).`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Reactivating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.User.ReactivateUser(ctx, userId, queryParams))
+	},
+}
+
+// okta-admin users delete <userId>
+var deleteUserCmd = &cobra.Command{
+	Use:   "delete <userId>",
+	Short: "Deletes a user permanently.",
+	Long:  `Deletes a user permanently. This operation can only be performed on users that have a DEPROVISIONED status. **This action cannot be recovered!**`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Deleting user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.DeactivateOrDeleteUser(ctx, userId, queryParams)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users suspend <userId>
+var suspendUserCmd = &cobra.Command{
+	Use:   "suspend <userId>",
+	Short: "Suspends a user.",
+	Long:  `Suspends a user. This operation can only be performed on users with an ACTIVE status. The user will have a status of SUSPENDED when the process is complete.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Suspending user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.SuspendUser(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users unsuspend <userId>
+var unsuspendUserCmd = &cobra.Command{
+	Use:   "unsuspend <userId>",
+	Short: "Unsuspends a user.",
+	Long:  `Unsuspends a user and returns them to the ACTIVE state. This operation can only be performed on users that have a SUSPENDED status.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Unsuspending user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.UnsuspendUser(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users unlock <userId>
+var unlockUserCmd = &cobra.Command{
+	Use:   "unlock <userId>",
+	Short: "Unlocks a user with a LOCKED_OUT status.",
+	Long:  `Unlocks a user with a LOCKED_OUT status and returns them to ACTIVE status. Users will be able to login with their current password.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Unlocking user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.UnlockUser(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users changepwd <userId> <jsonBody>
+var changeUserPwdCmd = &cobra.Command{
+	Use:   "changepwd <userId> <jsonBody>",
+	Short: "Changes a user password.",
+	Long:  `Changes a user password by validating the users current password. This operation can only be performed on users in STAGED, ACTIVE, PASSWORD_EXPIRED, or RECOVERY status that have a valid password credential`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		queryParams := retQueryParams(filter)
+		log.Printf("Changing password for user %s in %s", userId, viper.GetString("org"))
+		var body okta.ChangePasswordRequest
+		json.Unmarshal([]byte(jsonBody), &body)
+		ctx, client := getOrCreateClient()
+		processOutput(client.User.ChangePassword(ctx, userId, body, queryParams))
+	},
+}
+
+// okta-admin users expirepwd <userId> [<tempPassword: true|false>]
+var expirePwdCmd = &cobra.Command{
+	Use:   "expirepwd <userId> [<tempPassword: true|false>]",
+	Short: "Changes a user password.",
+	Long:  `Changes a user password by validating the users current password. This operation can only be performed on users in STAGED, ACTIVE, PASSWORD_EXPIRED, or RECOVERY status that have a valid password credential`,
+	Args:  cobra.RangeArgs(1, 2),
+	Run: func(cmd *cobra.Command, args []string) {
+		var tmpPwd bool
+		userId := args[0]
+		if len(args) == 2 {
+			tempPassword := args[1]
+			switch tempPassword {
+			case "true":
+				tmpPwd = true
+			default:
+				tmpPwd = false
+			}
+		}
+		log.Printf("Expiring password for user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		if tmpPwd {
+			processOutput(client.User.ExpirePasswordAndGetTemporaryPassword(ctx, userId))
 		} else {
-			retResults(data, jsonquery, format)
+			processOutput(client.User.ExpirePassword(ctx, userId))
 		}
 	},
 }
 
-/*
-ActivateUser
-AddAllAppsAsTargetToRole
-AddApplicationTargetToAdminRoleForUser
-AddApplicationTargetToAppAdminRoleForUser
-AddGroupTargetToRole
-AssignRoleToUser
-ChangePassword
-ChangeRecoveryQuestion
-ClearUserSessions
-CreateUser
-DeactivateOrDeleteUser
-DeactivateUser
-ExpirePassword
-ExpirePasswordAndGetTemporaryPassword
-ForgotPasswordGenerateOneTimeToken
-ForgotPasswordSetNewPassword
-PartialUpdateUser
-ReactivateUser
-RemoveApplicationTargetFromAdministratorRoleForUser
-RemoveApplicationTargetFromApplicationAdministratorRoleForUser
-RemoveGroupTargetFromRole
-RemoveLinkedObjectForUser
-RemoveRoleFromUser
-ResetFactors
-ResetPassword
-RevokeGrantsForUserAndClient
-RevokeTokenForUserAndClient
-RevokeTokensForUserAndClient
-RevokeUserGrant
-RevokeUserGrants
-SetLinkedObjectForUser
-SuspendUser
-UnlockUser
-UnsuspendUser
-UpdateUser
-*/
+// okta-admin users resetpwd <userId>
+var resetPwdCmd = &cobra.Command{
+	Use:   "resetpwd <userId>",
+	Short: "Generates a one-time token (OTT) that can be used to reset a users password.",
+	Long:  `Generates a one-time token (OTT) that can be used to reset a users password.  The OTT link can be automatically emailed to the user or returned to the API caller and distributed using a custom flow.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Generating OTT for password reset for user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.User.ResetPassword(ctx, userId, queryParams))
+	},
+}
+
+/* ForgotPasswordGenerateOneTimeToken */
+/* ForgotPasswordSetNewPassword */
+// okta-admin users
+// Generates a one-time token (OTT) that can be used to reset a user&#x27;s password
+//func (m *UserResource) ForgotPasswordGenerateOneTimeToken(ctx context.Context, userId string, qp *query.Params) (*ForgotPasswordResponse, *Response, error) {
+//	url := fmt.Sprintf("/api/v1/users/%v/credentials/forgot_password", userId)
+// Sets a new password for a user by validating the user&#x27;s answer to their current recovery question
+//func (m *UserResource) ForgotPasswordSetNewPassword(ctx context.Context, userId string, body UserCredentials, qp *query.Params) (*ForgotPasswordResponse, *Response, error) {
+//	url := fmt.Sprintf("/api/v1/users/%v/credentials/forgot_password", userId)
+
+/* ChangeRecoveryQuestion */
+// okta-admin users
+
+/* ResetFactors */
+// okta-admin users
+
+/* AssignRoleToUser */
+// okta-admin users assignrole
+
+/* ClearUserSessions */
+// okta-admin users clearsessions
+
+/* RemoveApplicationTargetFromAdministratorRoleForUser */
+// okta-admin users
+
+/* RemoveApplicationTargetFromApplicationAdministratorRoleForUser */
+// okta-admin users
+
+/* RemoveGroupTargetFromRole */
+// okta-admin users
+
+/* RemoveLinkedObjectForUser */
+// okta-admin users
+
+/* RemoveRoleFromUser */
+// okta-admin users removerole
+
+/* RevokeGrantsForUserAndClient */
+// okta-admin users
+
+/* RevokeTokenForUserAndClient */
+// okta-admin users
+
+/* RevokeTokensForUserAndClient */
+// okta-admin users
+
+/* RevokeUserGrant */
+// okta-admin users
+
+/* RevokeUserGrants */
+// okta-admin users
+
+/* SetLinkedObjectForUser */
+// okta-admin users
+
+/* AddAllAppsAsTargetToRole */
+// okta-admin users
+
+/* AddApplicationTargetToAdminRoleForUser */
+// okta-admin users
+
+/* AddApplicationTargetToAppAdminRoleForUser */
+// okta-admin users
+
+/* AddGroupTargetToRole */
+// okta-admin users
+
+//
+// Mutation Operations (return resp code)
+//
+
+// okta-admin users create <jsonBody>
+var createUserCmd = &cobra.Command{
+	Use:   "create <jsonBody>",
+	Short: "Creates a new user in your Okta organization with or without credentials.",
+	Long:  `Creates a new user in your Okta organization with or without credentials.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		jsonBody := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Creating new user in %s", viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		var body okta.CreateUserRequest
+		json.Unmarshal([]byte(jsonBody), &body)
+		processOutput(client.User.CreateUser(ctx, body, queryParams))
+	},
+}
+
+// okta-admin users update <userId> <jsonBody>
+var updateUserCmd = &cobra.Command{
+	Use:   "update <userId> <jsonBody>",
+	Short: "Update a users profile and/or credentials using strict-update semantics.",
+	Long:  `Update a users profile and/or credentials using strict-update semantics.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		queryParams := retQueryParams(filter)
+		log.Printf("Updating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		var body okta.User
+		json.Unmarshal([]byte(jsonBody), &body)
+		processOutput(client.User.UpdateUser(ctx, userId, body, queryParams))
+	},
+}
+
+// okta-admin users partialupdate <userId> <jsonBody>
+var partialUpdateUserCmd = &cobra.Command{
+	Use:   "partialupdate <userId> <jsonBody>",
+	Short: "Update a users profile and/or credentials.",
+	Long:  `Update a users profile and/or credentials.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		queryParams := retQueryParams(filter)
+		log.Printf("Updating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		var body okta.User
+		json.Unmarshal([]byte(jsonBody), &body)
+		processOutput(client.User.PartialUpdateUser(ctx, userId, body, queryParams))
+	},
+}
 
 func init() {
 	rootCmd.AddCommand(usersCmd)
@@ -425,10 +574,18 @@ func init() {
 	usersCmd.AddCommand(getLinkedObjectsCmd)
 	usersCmd.AddCommand(getRefreshTokenCmd)
 	usersCmd.AddCommand(getUserGrantCmd)
-
-	// add flags for sub commands
-	//listUsersCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
-	//listUsersCmd.Flags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
+	usersCmd.AddCommand(createUserCmd)
+	usersCmd.AddCommand(updateUserCmd)
+	usersCmd.AddCommand(partialUpdateUserCmd)
+	usersCmd.AddCommand(activateUserCmd)
+	usersCmd.AddCommand(deactivateUserCmd)
+	usersCmd.AddCommand(reactivateUserCmd)
+	usersCmd.AddCommand(deleteUserCmd)
+	usersCmd.AddCommand(suspendUserCmd)
+	usersCmd.AddCommand(unsuspendUserCmd)
+	usersCmd.AddCommand(unlockUserCmd)
+	usersCmd.AddCommand(changeUserPwdCmd)
+	usersCmd.AddCommand(expirePwdCmd)
 
 	generateMarkdownDocs(usersCmd, "./docs/users/")
 
