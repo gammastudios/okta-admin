@@ -691,5 +691,5 @@ func init() {
 	idpsCmd.AddCommand(publishBinaryCertForIdpCmd)
 	idpsCmd.AddCommand(revokeCsrCmd)
 
-	generateMarkdownDocs(idpsCmd, "./docs/idps/")
+	//generateMarkdownDocs(idpsCmd, "./docs/idps/")
 }
