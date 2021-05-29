@@ -433,21 +433,67 @@ var resetPwdCmd = &cobra.Command{
 	},
 }
 
-/* ForgotPasswordGenerateOneTimeToken */
-/* ForgotPasswordSetNewPassword */
-// okta-admin users
-// Generates a one-time token (OTT) that can be used to reset a user&#x27;s password
-//func (m *UserResource) ForgotPasswordGenerateOneTimeToken(ctx context.Context, userId string, qp *query.Params) (*ForgotPasswordResponse, *Response, error) {
-//	url := fmt.Sprintf("/api/v1/users/%v/credentials/forgot_password", userId)
-// Sets a new password for a user by validating the user&#x27;s answer to their current recovery question
-//func (m *UserResource) ForgotPasswordSetNewPassword(ctx context.Context, userId string, body UserCredentials, qp *query.Params) (*ForgotPasswordResponse, *Response, error) {
-//	url := fmt.Sprintf("/api/v1/users/%v/credentials/forgot_password", userId)
+// okta-admin users forgotpwd <userId> [<jsonBody>]
+var forgotPwdCmd = &cobra.Command{
+	// overloaded command
+	Use:   "forgotpwd <userId> [<jsonBody>]",
+	Short: "Sets a new password or generates a one-time token (OTT) that can be used to reset a users password.",
+	Long: `[if jsonBody is not supplied] Generates a one-time token (OTT) that can be used to reset a users password.
+	[if a jsonBody is supplied] Sets a new password for a user by validating the user&#x27;s answer to their current recovery question.
+	`,
+	Args: cobra.RangeArgs(1, 2),
+	Run: func(cmd *cobra.Command, args []string) {
+		var userId string
+		userId = args[0]
+		queryParams := retQueryParams(filter)
+		ctx, client := getOrCreateClient()
+		if len(args) == 2 {
+			jsonBody := args[1]
+			var body okta.UserCredentials
+			json.Unmarshal([]byte(jsonBody), &body)
+			log.Printf("Setting new password for user %s in %s", userId, viper.GetString("org"))
+			processOutput(client.User.ForgotPasswordSetNewPassword(ctx, userId, body, queryParams))
+		} else {
+			log.Printf("Generating one time token (OTT) for user %s in %s", userId, viper.GetString("org"))
+			processOutput(client.User.ForgotPasswordGenerateOneTimeToken(ctx, userId, queryParams))
+		}
+	},
+}
 
-/* ChangeRecoveryQuestion */
-// okta-admin users
+// okta-admin users changerecoveryquestion <userId> <jsonBody>
+var changeRecoveryQuestionCmd = &cobra.Command{
+	Use:   "changerecoveryquestion <userId> <jsonBody>",
+	Short: "Changes a users recovery question and answer.",
+	Long: `Changes a user recovery question and answer credential by validating the users current password. 
+	This operation can only be performed on users in **STAGED**, **ACTIVE** or **RECOVERY** status that have a valid password credential.`,
+	Args: cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		var body okta.UserCredentials
+		json.Unmarshal([]byte(jsonBody), &body)
+		log.Printf("Changing recovery question for user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.User.ChangeRecoveryQuestion(ctx, userId, body))
+	},
+}
 
-/* ResetFactors */
-// okta-admin users
+// okta-admin users resetfactors <userId>
+var resetFactorsCmd = &cobra.Command{
+	Use:   "resetfactors <userId>",
+	Short: "This operation resets all factors for the specified user.",
+	Long: `This operation resets all factors for the specified user. 
+	All MFA factor enrollments returned to the unenrolled state. The users status remains ACTIVE. 
+	This link is present only if the user is currently enrolled in one or more MFA factors.`,
+	Args: cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Reseting factors for user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.ResetFactors(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
 
 /* AssignRoleToUser */
 // okta-admin users assignrole
@@ -586,6 +632,10 @@ func init() {
 	usersCmd.AddCommand(unlockUserCmd)
 	usersCmd.AddCommand(changeUserPwdCmd)
 	usersCmd.AddCommand(expirePwdCmd)
+	usersCmd.AddCommand(resetPwdCmd)
+	usersCmd.AddCommand(forgotPwdCmd)
+	usersCmd.AddCommand(changeRecoveryQuestionCmd)
+	usersCmd.AddCommand(resetFactorsCmd)
 
 	generateMarkdownDocs(usersCmd, "./docs/users/")
 

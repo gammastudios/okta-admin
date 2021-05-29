@@ -36,6 +36,37 @@ to quickly create a Cobra application.`,
 	},
 }
 
+/* groups client.Group
+ActivateGroupRule
+AddApplicationInstanceTargetToAppAdminRoleGivenToGroup
+AddApplicationTargetToAdminRoleGivenToGroup
+AddGroupTargetToGroupAdministratorRoleForGroup
+AddUserToGroup
+AssignRoleToGroup
+CreateGroup
+CreateGroupRule
+DeactivateGroupRule
+DeleteGroup
+DeleteGroupRule
+GetGroup
+GetGroupRule
+GetRole
+ListApplicationTargetsForApplicationAdministratorRoleForGroup
+ListAssignedApplicationsForGroup
+ListGroupAssignedRoles
+ListGroupRules
+ListGroupTargetsForGroupRole
+ListGroupUsers
+ListGroups
+RemoveApplicationTargetFromAdministratorRoleGivenToGroup
+RemoveApplicationTargetFromApplicationAdministratorRoleGivenToGroup
+RemoveGroupTargetFromGroupAdministratorRoleGivenToGroup
+RemoveRoleFromGroup
+RemoveUserFromGroup
+UpdateGroup
+UpdateGroupRule
+*/
+
 func init() {
 	rootCmd.AddCommand(groupsCmd)
 

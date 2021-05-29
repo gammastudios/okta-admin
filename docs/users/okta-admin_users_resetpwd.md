@@ -1,19 +1,19 @@
-## okta-admin users listroles
+## okta-admin users resetpwd
 
-Lists all roles assigned to a user.
+Generates a one-time token (OTT) that can be used to reset a users password.
 
 ### Synopsis
 
-Lists all roles assigned to a user.
+Generates a one-time token (OTT) that can be used to reset a users password.  The OTT link can be automatically emailed to the user or returned to the API caller and distributed using a custom flow.
 
 ```
-okta-admin users listroles <userId> [flags]
+okta-admin users resetpwd <userId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listroles
+  -h, --help   help for resetpwd
 ```
 
 ### Options inherited from parent commands

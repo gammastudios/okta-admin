@@ -1,19 +1,21 @@
-## okta-admin users listroles
+## okta-admin users forgotpwd
 
-Lists all roles assigned to a user.
+Sets a new password or generates a one-time token (OTT) that can be used to reset a users password.
 
 ### Synopsis
 
-Lists all roles assigned to a user.
+[if jsonBody is not supplied] Generates a one-time token (OTT) that can be used to reset a users password.
+	[if a jsonBody is supplied] Sets a new password for a user by validating the user&#x27;s answer to their current recovery question.
+	
 
 ```
-okta-admin users listroles <userId> [flags]
+okta-admin users forgotpwd <userId> [<jsonBody>] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listroles
+  -h, --help   help for forgotpwd
 ```
 
 ### Options inherited from parent commands

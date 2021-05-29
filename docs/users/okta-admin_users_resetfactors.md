@@ -1,19 +1,21 @@
-## okta-admin users listroles
+## okta-admin users resetfactors
 
-Lists all roles assigned to a user.
+This operation resets all factors for the specified user.
 
 ### Synopsis
 
-Lists all roles assigned to a user.
+This operation resets all factors for the specified user. 
+	All MFA factor enrollments returned to the unenrolled state. The users status remains ACTIVE. 
+	This link is present only if the user is currently enrolled in one or more MFA factors.
 
 ```
-okta-admin users listroles <userId> [flags]
+okta-admin users resetfactors <userId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listroles
+  -h, --help   help for resetfactors
 ```
 
 ### Options inherited from parent commands

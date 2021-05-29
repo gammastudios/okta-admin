@@ -1,19 +1,20 @@
-## okta-admin users listroles
+## okta-admin users changerecoveryquestion
 
-Lists all roles assigned to a user.
+Changes a users recovery question and answer.
 
 ### Synopsis
 
-Lists all roles assigned to a user.
+Changes a user recovery question and answer credential by validating the users current password. 
+	This operation can only be performed on users in **STAGED**, **ACTIVE** or **RECOVERY** status that have a valid password credential.
 
 ```
-okta-admin users listroles <userId> [flags]
+okta-admin users changerecoveryquestion <userId> <jsonBody> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listroles
+  -h, --help   help for changerecoveryquestion
 ```
 
 ### Options inherited from parent commands
