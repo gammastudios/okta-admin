@@ -1,19 +1,19 @@
-## okta-admin idps listusers
+## okta-admin idps createkey
 
-Find all the users linked to an identity provider.
+Adds a new X.509 certificate credential to the IdP key store.
 
 ### Synopsis
 
-Find all the users linked to an identity provider.
+Adds a new X.509 certificate credential to the IdP key store.
 
 ```
-okta-admin idps listusers <idpId> [flags]
+okta-admin idps createkey <jsonBody> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for listusers
+  -h, --help   help for createkey
 ```
 
 ### SEE ALSO

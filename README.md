@@ -10,15 +10,19 @@ For information on APIs and sub commands available, see the markdown documents a
 - [Groups API (`groups`)](https://github.com/gammastudios/okta-admin/docs/groups)
 - [Applications API (`apps`)](https://github.com/gammastudios/okta-admin/docs/apps)
 
-### Filtering and projecting results
+## Filtering and projecting results
 
 Results from the `okta-admin` utility are returned as string representations of json objects.
+
+### Filtering results using the `--filter` flag
 
 Results can be filtered at the remote API using the `--filter` flag for a given command, for instance:
 
 `okta-admin users list --filter 'status eq \"ACTIVE\"'`
 
 would return only the users with a `status` value of `ACTIVE`
+
+### Quertying and projecting results using the `--jsonquery` flag
 
 Once results are returned they can be further filtered, projected or have other operations performed using the `--jsonquery` flag, for example:
 

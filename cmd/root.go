@@ -122,20 +122,6 @@ func retQueryParams(filter string) (queryParams *query.Params) {
 	return
 }
 
-/*
-func retResults(data []byte, jsonquery string) {
-	// Json query
-	if len(jsonquery) != 0 {
-		// jsonquery set
-		log.Printf("Json query specified: %s", jsonquery)
-		res := gjson.Get(string(data), jsonquery)
-		fmt.Println(res)
-	} else {
-		fmt.Println(string(data))
-	}
-}
-*/
-
 func retResults(data interface{}, jsonquery string, format bool) {
 	// Marshal
 	var b []byte
