@@ -495,11 +495,41 @@ var resetFactorsCmd = &cobra.Command{
 	},
 }
 
-/* AssignRoleToUser */
-// okta-admin users assignrole
+// okta-admin users assignrole <userId> <jsonBody>
+var assignRoleCmd = &cobra.Command{
+	Use:   "assignrole <userId> <jsonBody>",
+	Short: "Assigns a role to a user.",
+	Long:  `Assigns a role to a user.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		queryParams := retQueryParams(filter)
+		var body okta.AssignRoleRequest
+		json.Unmarshal([]byte(jsonBody), &body)
+		log.Printf("Assigning role to user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.User.AssignRoleToUser(ctx, userId, body, queryParams))
+	},
+}
 
-/* ClearUserSessions */
-// okta-admin users clearsessions
+// okta-admin users clearsessions <userId>
+var clearSessionsCmd = &cobra.Command{
+	Use:   "clearsessions <userId>",
+	Short: "Removes all active identity provider sessions.",
+	Long: `Removes all active identity provider sessions. 
+	This forces the user to authenticate on the next operation. 
+	Optionally revokes OpenID Connect and OAuth refresh and access tokens issued to the user.`,
+	Args: cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Reseting factors for user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.ClearUserSessions(ctx, userId, queryParams)
+		processOutput(nil, resp, err)
+	},
+}
 
 /* RemoveApplicationTargetFromAdministratorRoleForUser */
 // okta-admin users
@@ -636,6 +666,8 @@ func init() {
 	usersCmd.AddCommand(forgotPwdCmd)
 	usersCmd.AddCommand(changeRecoveryQuestionCmd)
 	usersCmd.AddCommand(resetFactorsCmd)
+	usersCmd.AddCommand(assignRoleCmd)
+	usersCmd.AddCommand(clearSessionsCmd)
 
 	generateMarkdownDocs(usersCmd, "./docs/users/")
 
