@@ -35,7 +35,7 @@ okta-admin apps create
 }
 
 //
-// Query Operations (return data)
+// Output Operations (return data)
 //
 
 // okta-admin apps list
@@ -52,7 +52,7 @@ var listAppsCmd = &cobra.Command{
 }
 
 //
-// Action Operations (return resp code)
+// State Only Operations (return resp code)
 //
 
 // okta-admin apps deactivate <appId>

@@ -38,7 +38,7 @@ okta-admin users create
 }
 
 //
-// Query Operations (return data)
+// Output Operations (return data)
 //
 
 // okta-admin users list
@@ -261,10 +261,6 @@ var getUserGrantCmd = &cobra.Command{
 	},
 }
 
-//
-// Action Operations (return resp code)
-//
-
 // okta-admin users activate <userId>
 var activateUserCmd = &cobra.Command{
 	Use:   "activate <userId>",
@@ -280,22 +276,6 @@ var activateUserCmd = &cobra.Command{
 	},
 }
 
-// okta-admin users deactivate <userId>
-var deactivateUserCmd = &cobra.Command{
-	Use:   "deactivate <userId>",
-	Short: "Deactivates a user.",
-	Long:  `Deactivates a user. This operation can only be performed on users that do not have a DEPROVISIONED status. Deactivation of a user is an asynchronous operation. The user will have the transitioningToStatus property with a value of DEPROVISIONED during deactivation to indicate that the user hasnt completed the asynchronous operation. The user will have a status of DEPROVISIONED when the deactivation process is complete.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		queryParams := retQueryParams(filter)
-		log.Printf("Deactivating user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.User.DeactivateUser(ctx, userId, queryParams)
-		processOutput(nil, resp, err)
-	},
-}
-
 // okta-admin users reactivate <userId>
 var reactivateUserCmd = &cobra.Command{
 	Use:   "reactivate <userId>",
@@ -308,67 +288,6 @@ var reactivateUserCmd = &cobra.Command{
 		log.Printf("Reactivating user %s in %s", userId, viper.GetString("org"))
 		ctx, client := getOrCreateClient()
 		processOutput(client.User.ReactivateUser(ctx, userId, queryParams))
-	},
-}
-
-// okta-admin users delete <userId>
-var deleteUserCmd = &cobra.Command{
-	Use:   "delete <userId>",
-	Short: "Deletes a user permanently.",
-	Long:  `Deletes a user permanently. This operation can only be performed on users that have a DEPROVISIONED status. **This action cannot be recovered!**`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		queryParams := retQueryParams(filter)
-		log.Printf("Deleting user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.User.DeactivateOrDeleteUser(ctx, userId, queryParams)
-		processOutput(nil, resp, err)
-	},
-}
-
-// okta-admin users suspend <userId>
-var suspendUserCmd = &cobra.Command{
-	Use:   "suspend <userId>",
-	Short: "Suspends a user.",
-	Long:  `Suspends a user. This operation can only be performed on users with an ACTIVE status. The user will have a status of SUSPENDED when the process is complete.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		log.Printf("Suspending user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.User.SuspendUser(ctx, userId)
-		processOutput(nil, resp, err)
-	},
-}
-
-// okta-admin users unsuspend <userId>
-var unsuspendUserCmd = &cobra.Command{
-	Use:   "unsuspend <userId>",
-	Short: "Unsuspends a user.",
-	Long:  `Unsuspends a user and returns them to the ACTIVE state. This operation can only be performed on users that have a SUSPENDED status.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		log.Printf("Unsuspending user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.User.UnsuspendUser(ctx, userId)
-		processOutput(nil, resp, err)
-	},
-}
-
-// okta-admin users unlock <userId>
-var unlockUserCmd = &cobra.Command{
-	Use:   "unlock <userId>",
-	Short: "Unlocks a user with a LOCKED_OUT status.",
-	Long:  `Unlocks a user with a LOCKED_OUT status and returns them to ACTIVE status. Users will be able to login with their current password.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		log.Printf("Unlocking user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.User.UnlockUser(ctx, userId)
-		processOutput(nil, resp, err)
 	},
 }
 
@@ -478,23 +397,6 @@ var changeRecoveryQuestionCmd = &cobra.Command{
 	},
 }
 
-// okta-admin users resetfactors <userId>
-var resetFactorsCmd = &cobra.Command{
-	Use:   "resetfactors <userId>",
-	Short: "This operation resets all factors for the specified user.",
-	Long: `This operation resets all factors for the specified user. 
-	All MFA factor enrollments returned to the unenrolled state. The users status remains ACTIVE. 
-	This link is present only if the user is currently enrolled in one or more MFA factors.`,
-	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		log.Printf("Reseting factors for user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.User.ResetFactors(ctx, userId)
-		processOutput(nil, resp, err)
-	},
-}
-
 // okta-admin users assignrole <userId> <jsonBody>
 var assignRoleCmd = &cobra.Command{
 	Use:   "assignrole <userId> <jsonBody>",
@@ -510,6 +412,182 @@ var assignRoleCmd = &cobra.Command{
 		log.Printf("Assigning role to user %s in %s", userId, viper.GetString("org"))
 		ctx, client := getOrCreateClient()
 		processOutput(client.User.AssignRoleToUser(ctx, userId, body, queryParams))
+	},
+}
+
+// okta-admin users addapptgtstoadminroleforuser <userId> <roleId> <appName> [<applicationId>]
+var addAppTgtsToAdminRoleForUserCmd = &cobra.Command{
+	Use:   "addapptgtstoadminroleforuser <userId> <roleId> <appName> [<applicationId>]",
+	Short: "Add App Instance Target to App Administrator Role given to a User.",
+	Long:  `Add App Instance Target to App Administrator Role given to a User.`,
+	Args:  cobra.RangeArgs(3, 4),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		appName := args[2]
+		if len(args) == 4 {
+			applicationId := args[3]
+			log.Printf("Adding App Instance Target to App Administrator Role given for user %s, role %s, appname %s, appid %s, in %s", userId, roleId, appName, applicationId, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.AddApplicationTargetToAppAdminRoleForUser(ctx, userId, roleId, appName, applicationId)
+			processOutput(nil, resp, err)
+		} else {
+			log.Printf("Adding App Instance Target to App Administrator Role given for user %s, role %s, appname %s, in %s", userId, roleId, appName, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.AddApplicationTargetToAdminRoleForUser(ctx, userId, roleId, appName)
+			processOutput(nil, resp, err)
+		}
+	},
+}
+
+// okta-admin users create <jsonBody>
+var createUserCmd = &cobra.Command{
+	Use:   "create <jsonBody>",
+	Short: "Creates a new user in your Okta organization with or without credentials.",
+	Long:  `Creates a new user in your Okta organization with or without credentials.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		jsonBody := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Creating new user in %s", viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		var body okta.CreateUserRequest
+		json.Unmarshal([]byte(jsonBody), &body)
+		processOutput(client.User.CreateUser(ctx, body, queryParams))
+	},
+}
+
+// okta-admin users update <userId> <jsonBody>
+var updateUserCmd = &cobra.Command{
+	Use:   "update <userId> <jsonBody>",
+	Short: "Update a users profile and/or credentials using strict-update semantics.",
+	Long:  `Update a users profile and/or credentials using strict-update semantics.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		queryParams := retQueryParams(filter)
+		log.Printf("Updating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		var body okta.User
+		json.Unmarshal([]byte(jsonBody), &body)
+		processOutput(client.User.UpdateUser(ctx, userId, body, queryParams))
+	},
+}
+
+// okta-admin users partialupdate <userId> <jsonBody>
+var partialUpdateUserCmd = &cobra.Command{
+	Use:   "partialupdate <userId> <jsonBody>",
+	Short: "Update a users profile and/or credentials.",
+	Long:  `Update a users profile and/or credentials.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		jsonBody := args[1]
+		queryParams := retQueryParams(filter)
+		log.Printf("Updating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		var body okta.User
+		json.Unmarshal([]byte(jsonBody), &body)
+		processOutput(client.User.PartialUpdateUser(ctx, userId, body, queryParams))
+	},
+}
+
+//
+// State Only Operations (return resp code)
+//
+
+// okta-admin users deactivate <userId>
+var deactivateUserCmd = &cobra.Command{
+	Use:   "deactivate <userId>",
+	Short: "Deactivates a user.",
+	Long:  `Deactivates a user. This operation can only be performed on users that do not have a DEPROVISIONED status. Deactivation of a user is an asynchronous operation. The user will have the transitioningToStatus property with a value of DEPROVISIONED during deactivation to indicate that the user hasnt completed the asynchronous operation. The user will have a status of DEPROVISIONED when the deactivation process is complete.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Deactivating user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.DeactivateUser(ctx, userId, queryParams)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users delete <userId>
+var deleteUserCmd = &cobra.Command{
+	Use:   "delete <userId>",
+	Short: "Deletes a user permanently.",
+	Long:  `Deletes a user permanently. This operation can only be performed on users that have a DEPROVISIONED status. **This action cannot be recovered!**`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Deleting user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.DeactivateOrDeleteUser(ctx, userId, queryParams)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users suspend <userId>
+var suspendUserCmd = &cobra.Command{
+	Use:   "suspend <userId>",
+	Short: "Suspends a user.",
+	Long:  `Suspends a user. This operation can only be performed on users with an ACTIVE status. The user will have a status of SUSPENDED when the process is complete.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Suspending user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.SuspendUser(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users unsuspend <userId>
+var unsuspendUserCmd = &cobra.Command{
+	Use:   "unsuspend <userId>",
+	Short: "Unsuspends a user.",
+	Long:  `Unsuspends a user and returns them to the ACTIVE state. This operation can only be performed on users that have a SUSPENDED status.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Unsuspending user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.UnsuspendUser(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users unlock <userId>
+var unlockUserCmd = &cobra.Command{
+	Use:   "unlock <userId>",
+	Short: "Unlocks a user with a LOCKED_OUT status.",
+	Long:  `Unlocks a user with a LOCKED_OUT status and returns them to ACTIVE status. Users will be able to login with their current password.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Unlocking user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.UnlockUser(ctx, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin users resetfactors <userId>
+var resetFactorsCmd = &cobra.Command{
+	Use:   "resetfactors <userId>",
+	Short: "This operation resets all factors for the specified user.",
+	Long: `This operation resets all factors for the specified user. 
+	All MFA factor enrollments returned to the unenrolled state. The users status remains ACTIVE. 
+	This link is present only if the user is currently enrolled in one or more MFA factors.`,
+	Args: cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		log.Printf("Reseting factors for user %s in %s", userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.ResetFactors(ctx, userId)
+		processOutput(nil, resp, err)
 	},
 }
 
@@ -717,88 +795,6 @@ var addAllAppsAsTargetToRoleCmd = &cobra.Command{
 		ctx, client := getOrCreateClient()
 		resp, err := client.User.AddAllAppsAsTargetToRole(ctx, userId, roleId)
 		processOutput(nil, resp, err)
-	},
-}
-
-// okta-admin users addapptgtstoadminroleforuser <userId> <roleId> <appName> [<applicationId>]
-var addAppTgtsToAdminRoleForUserCmd = &cobra.Command{
-	Use:   "addapptgtstoadminroleforuser <userId> <roleId> <appName> [<applicationId>]",
-	Short: "Add App Instance Target to App Administrator Role given to a User.",
-	Long:  `Add App Instance Target to App Administrator Role given to a User.`,
-	Args:  cobra.RangeArgs(3, 4),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		roleId := args[1]
-		appName := args[2]
-		if len(args) == 4 {
-			applicationId := args[3]
-			log.Printf("Adding App Instance Target to App Administrator Role given for user %s, role %s, appname %s, appid %s, in %s", userId, roleId, appName, applicationId, viper.GetString("org"))
-			ctx, client := getOrCreateClient()
-			resp, err := client.User.AddApplicationTargetToAppAdminRoleForUser(ctx, userId, roleId, appName, applicationId)
-			processOutput(nil, resp, err)
-		} else {
-			log.Printf("Adding App Instance Target to App Administrator Role given for user %s, role %s, appname %s, in %s", userId, roleId, appName, viper.GetString("org"))
-			ctx, client := getOrCreateClient()
-			resp, err := client.User.AddApplicationTargetToAdminRoleForUser(ctx, userId, roleId, appName)
-			processOutput(nil, resp, err)
-		}
-	},
-}
-
-//
-// Mutation Operations (create or update objects)
-//
-
-// okta-admin users create <jsonBody>
-var createUserCmd = &cobra.Command{
-	Use:   "create <jsonBody>",
-	Short: "Creates a new user in your Okta organization with or without credentials.",
-	Long:  `Creates a new user in your Okta organization with or without credentials.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		jsonBody := args[0]
-		queryParams := retQueryParams(filter)
-		log.Printf("Creating new user in %s", viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		var body okta.CreateUserRequest
-		json.Unmarshal([]byte(jsonBody), &body)
-		processOutput(client.User.CreateUser(ctx, body, queryParams))
-	},
-}
-
-// okta-admin users update <userId> <jsonBody>
-var updateUserCmd = &cobra.Command{
-	Use:   "update <userId> <jsonBody>",
-	Short: "Update a users profile and/or credentials using strict-update semantics.",
-	Long:  `Update a users profile and/or credentials using strict-update semantics.`,
-	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		jsonBody := args[1]
-		queryParams := retQueryParams(filter)
-		log.Printf("Updating user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		var body okta.User
-		json.Unmarshal([]byte(jsonBody), &body)
-		processOutput(client.User.UpdateUser(ctx, userId, body, queryParams))
-	},
-}
-
-// okta-admin users partialupdate <userId> <jsonBody>
-var partialUpdateUserCmd = &cobra.Command{
-	Use:   "partialupdate <userId> <jsonBody>",
-	Short: "Update a users profile and/or credentials.",
-	Long:  `Update a users profile and/or credentials.`,
-	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		userId := args[0]
-		jsonBody := args[1]
-		queryParams := retQueryParams(filter)
-		log.Printf("Updating user %s in %s", userId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		var body okta.User
-		json.Unmarshal([]byte(jsonBody), &body)
-		processOutput(client.User.PartialUpdateUser(ctx, userId, body, queryParams))
 	},
 }
 

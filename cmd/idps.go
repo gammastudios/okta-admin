@@ -36,7 +36,7 @@ okta-admin idps list
 }
 
 //
-// Query Operations (return data)
+// Output Operations (return data)
 //
 
 // okta-admin idps list
@@ -189,10 +189,6 @@ var getIdpSigningKeyCmd = &cobra.Command{
 	},
 }
 
-//
-// Data Generating Operations (returns data)
-//
-
 // okta-admin idps generatecsr <idpId> <jsonBody>
 var generateCsrCmd = &cobra.Command{
 	Use:   "generatecsr <idpId> <jsonBody>",
@@ -226,10 +222,6 @@ var generateKeyCmd = &cobra.Command{
 	},
 }
 
-//
-// Action Operations (return resp code)
-//
-
 // okta-admin idps deactivate <idpId>
 var deactivateIdpCmd = &cobra.Command{
 	Use:   "deactivate <idpId>",
@@ -241,21 +233,6 @@ var deactivateIdpCmd = &cobra.Command{
 		log.Printf("Deactivating idp %s in %s", idpId, viper.GetString("org"))
 		ctx, client := getOrCreateClient()
 		processOutput(client.IdentityProvider.DeactivateIdentityProvider(ctx, idpId))
-	},
-}
-
-// okta-admin idps delete <idpId>
-var deleteIdpCmd = &cobra.Command{
-	Use:   "delete <idpId>",
-	Short: "Removes an IdP from your organization.",
-	Long:  `Removes an IdP from your organization.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		idpId := args[0]
-		log.Printf("Deleting idp %s in %s", idpId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.IdentityProvider.DeleteIdentityProvider(ctx, idpId)
-		processOutput(nil, resp, err)
 	},
 }
 
@@ -289,21 +266,6 @@ var cloneIdpKeyCmd = &cobra.Command{
 	},
 }
 
-// okta-admin idps deletekey <keyId>
-var deleteIdpKeyCmd = &cobra.Command{
-	Use:   "deletekey <keyId>",
-	Short: "Deletes a specific IdP Key Credential by KEYID if it is not currently being used by an Active or Inactive IdP.",
-	Long:  `Deletes a specific IdP Key Credential by KEYID if it is not currently being used by an Active or Inactive IdP.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		keyId := args[0]
-		log.Printf("Deleting key %s in %s", keyId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.IdentityProvider.DeleteIdentityProviderKey(ctx, keyId)
-		processOutput(nil, resp, err)
-	},
-}
-
 // okta-admin idps linkuser <idpId> <userId> <jsonBody>
 var linkUserToIdpCmd = &cobra.Command{
 	Use:   "linkuser <idpId> <userId> <jsonBody>",
@@ -322,23 +284,7 @@ var linkUserToIdpCmd = &cobra.Command{
 	},
 }
 
-// okta-admin idps unlinkuser <idpId> <userId>
-var unlinkUserFromIdpCmd = &cobra.Command{
-	Use:   "unlinkuser <idpId> <userId>",
-	Short: "Removes the link between the Okta user and the IdP user.",
-	Long:  `Removes the link between the Okta user and the IdP user.`,
-	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		idpId := args[0]
-		userId := args[1]
-		log.Printf("Unlinking user %s from idp %s in %s", userId, idpId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.IdentityProvider.UnlinkUserFromIdentityProvider(ctx, idpId, userId)
-		processOutput(nil, resp, err)
-	},
-}
-
-// okta-admin idps publishcer <idpId> <csrId> <certtype: cer|der|pem>
+// okta-admin idps publishcert <idpId> <csrId> <certtype: cer|der|pem>
 var publishBinaryCertForIdpCmd = &cobra.Command{
 	Use:   "publishcert <idpId> <csrId> <body> <type: cer|der|pem>",
 	Short: "Update the Certificate Signing Request with a signed X.509 certificate and add it into the signing key credentials for the IdP.",
@@ -367,26 +313,6 @@ var publishBinaryCertForIdpCmd = &cobra.Command{
 		}
 	},
 }
-
-// okta-admin idps revokecsr <idpId> <csrId>
-var revokeCsrCmd = &cobra.Command{
-	Use:   "revokecsr <idpId> <csrId>",
-	Short: "Revoke a Certificate Signing Request and delete the key pair from the IdP.",
-	Long:  `Revoke a Certificate Signing Request and delete the key pair from the IdP.`,
-	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		idpId := args[0]
-		csrId := args[1]
-		log.Printf("Revoking csr %s from idp %s in %s", csrId, idpId, viper.GetString("org"))
-		ctx, client := getOrCreateClient()
-		resp, err := client.IdentityProvider.RevokeCsrForIdentityProvider(ctx, idpId, csrId)
-		processOutput(nil, resp, err)
-	},
-}
-
-//
-// Mutation Operations (create or update objects)
-//
 
 // okta-admin idps create <jsonBody>
 var createIdpCmd = &cobra.Command{
@@ -508,6 +434,72 @@ var updateIdpCmd = &cobra.Command{
 		var body okta.IdentityProvider
 		json.Unmarshal([]byte(jsonBody), &body)
 		processOutput(client.IdentityProvider.UpdateIdentityProvider(ctx, idpId, body))
+	},
+}
+
+//
+// State Only Operations (return resp code)
+//
+
+// okta-admin idps delete <idpId>
+var deleteIdpCmd = &cobra.Command{
+	Use:   "delete <idpId>",
+	Short: "Removes an IdP from your organization.",
+	Long:  `Removes an IdP from your organization.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		log.Printf("Deleting idp %s in %s", idpId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.IdentityProvider.DeleteIdentityProvider(ctx, idpId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin idps deletekey <keyId>
+var deleteIdpKeyCmd = &cobra.Command{
+	Use:   "deletekey <keyId>",
+	Short: "Deletes a specific IdP Key Credential by KEYID if it is not currently being used by an Active or Inactive IdP.",
+	Long:  `Deletes a specific IdP Key Credential by KEYID if it is not currently being used by an Active or Inactive IdP.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		keyId := args[0]
+		log.Printf("Deleting key %s in %s", keyId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.IdentityProvider.DeleteIdentityProviderKey(ctx, keyId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin idps unlinkuser <idpId> <userId>
+var unlinkUserFromIdpCmd = &cobra.Command{
+	Use:   "unlinkuser <idpId> <userId>",
+	Short: "Removes the link between the Okta user and the IdP user.",
+	Long:  `Removes the link between the Okta user and the IdP user.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		userId := args[1]
+		log.Printf("Unlinking user %s from idp %s in %s", userId, idpId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.IdentityProvider.UnlinkUserFromIdentityProvider(ctx, idpId, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
+// okta-admin idps revokecsr <idpId> <csrId>
+var revokeCsrCmd = &cobra.Command{
+	Use:   "revokecsr <idpId> <csrId>",
+	Short: "Revoke a Certificate Signing Request and delete the key pair from the IdP.",
+	Long:  `Revoke a Certificate Signing Request and delete the key pair from the IdP.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		idpId := args[0]
+		csrId := args[1]
+		log.Printf("Revoking csr %s from idp %s in %s", csrId, idpId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.IdentityProvider.RevokeCsrForIdentityProvider(ctx, idpId, csrId)
+		processOutput(nil, resp, err)
 	},
 }
 
