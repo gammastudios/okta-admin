@@ -35,8 +35,10 @@ okta-admin apps create
 }
 
 //
-// okta-admin apps list
+// Query Operations (return data)
 //
+
+// okta-admin apps list
 var listAppsCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Enumerates apps added to your organization.",
@@ -44,21 +46,16 @@ var listAppsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Printf("Listing apps in %s", viper.GetString("org"))
 		queryParams := retQueryParams(filter)
-		// Get data
 		ctx, client := getOrCreateClient()
-		apps, _, err := client.Application.ListApplications(ctx, queryParams)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(apps)
-			//retResults(apps, jsonquery, format)
-		}
+		processOutput(client.Application.ListApplications(ctx, queryParams))
 	},
 }
 
 //
-// okta-admin apps deactivate <appId>
+// Action Operations (return resp code)
 //
+
+// okta-admin apps deactivate <appId>
 var deactivateAppCmd = &cobra.Command{
 	Use:   "deactivate <appId>",
 	Short: "Deactivates an active application.",
@@ -67,20 +64,13 @@ var deactivateAppCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		appId := args[0]
 		log.Printf("Deactivating application %s in %s", appId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		resp, err := client.Application.DeactivateApplication(ctx, appId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(nil, resp, err)
 	},
 }
 
-//
 // okta-admin apps delete <appId>
-//
 var deleteAppCmd = &cobra.Command{
 	Use:   "delete <appId>",
 	Short: "Removes an inactive application.",
@@ -89,16 +79,15 @@ var deleteAppCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		appId := args[0]
 		log.Printf("Deleting application %s in %s", appId, viper.GetString("org"))
-		// Get data
 		ctx, client := getOrCreateClient()
 		resp, err := client.Application.DeleteApplication(ctx, appId)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp.Status)
-		}
+		processOutput(nil, resp, err)
 	},
 }
+
+//
+// Mutation Operations (create or update objects)
+//
 
 /*
 ActivateApplication
@@ -143,29 +132,6 @@ func init() {
 	appsCmd.AddCommand(listAppsCmd)
 	appsCmd.AddCommand(deactivateAppCmd)
 	appsCmd.AddCommand(deleteAppCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// usersCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// usersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	//listAppsCmd.Flags().StringVarP(&filter, "filter", "f", "", "filter expression to filter results (e.g. 'status eq \\\"ACTIVE\\\"')")
-	//listAppsCmd.Flags().StringVarP(&jsonquery, "jsonquery", "q", "", "Json query to extract specified fields from a response object ()")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// appsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// appsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 	generateMarkdownDocs(appsCmd, "./docs/apps/")
 

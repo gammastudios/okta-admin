@@ -385,7 +385,7 @@ var revokeCsrCmd = &cobra.Command{
 }
 
 //
-// Mutation Operations (return resp code)
+// Mutation Operations (create or update objects)
 //
 
 // okta-admin idps create <jsonBody>

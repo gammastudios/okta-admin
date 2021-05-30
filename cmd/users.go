@@ -746,7 +746,7 @@ var addAppTgtsToAdminRoleForUserCmd = &cobra.Command{
 }
 
 //
-// Mutation Operations (return resp code)
+// Mutation Operations (create or update objects)
 //
 
 // okta-admin users create <jsonBody>
