@@ -531,50 +531,219 @@ var clearSessionsCmd = &cobra.Command{
 	},
 }
 
-/* RemoveApplicationTargetFromAdministratorRoleForUser */
-// okta-admin users
+// okta-admin users removeapptarget <userId> <roleId> <appName> [<applicationId>]
+var removeAppTgtCmd = &cobra.Command{
+	// overloaded command
+	Use:   "removeapptarget <userId> <roleId> <appName> [<applicationId>]",
+	Short: "Remove App Instance Target to App Administrator Role given to a User.",
+	Long:  `Remove App Instance Target to App Administrator Role given to a User.`,
+	Args:  cobra.RangeArgs(3, 4),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		appName := args[2]
+		ctx, client := getOrCreateClient()
+		if len(args) == 4 {
+			applicationId := args[3]
+			log.Printf("Removing app instance target for user %s, role %s, appname %s, appid %s, in %s", userId, roleId, appName, applicationId, viper.GetString("org"))
+			resp, err := client.User.RemoveApplicationTargetFromAdministratorRoleForUser(ctx, userId, roleId, appName, applicationId)
+			processOutput(nil, resp, err)
+		} else {
+			log.Printf("Removing app instance target for user %s, role %s, appname %s, in %s", userId, roleId, appName, viper.GetString("org"))
+			resp, err := client.User.RemoveApplicationTargetFromApplicationAdministratorRoleForUser(ctx, userId, roleId, appName)
+			processOutput(nil, resp, err)
+		}
+	},
+}
 
-/* RemoveApplicationTargetFromApplicationAdministratorRoleForUser */
-// okta-admin users
+// okta-admin users removegrouptgtfromrole <userId> <roleId> <groupId>
+var removeGroupTargetFromRoleCmd = &cobra.Command{
+	Use:   "removegrouptgtfromrole <userId> <roleId> <groupId>",
+	Short: "Removes group target from role for a user.",
+	Long:  `Removes group target from role for a user.`,
+	Args:  cobra.ExactArgs(3),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		groupId := args[2]
+		log.Printf("Removing group target %s from role %s for user %s in %s", groupId, roleId, userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.RemoveGroupTargetFromRole(ctx, userId, roleId, groupId)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* RemoveGroupTargetFromRole */
-// okta-admin users
+// okta-admin users addgrouptgttorole <userId> <roleId> <groupId>
+var addGroupTargetToRoleCmd = &cobra.Command{
+	Use:   "addgrouptgttorole <userId> <roleId> <groupId>",
+	Short: "Adds group target from role for a user.",
+	Long:  `Adds group target from role for a user.`,
+	Args:  cobra.ExactArgs(3),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		groupId := args[2]
+		log.Printf("Adding group target %s from role %s for user %s in %s", groupId, roleId, userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.AddGroupTargetToRole(ctx, userId, roleId, groupId)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* RemoveLinkedObjectForUser */
-// okta-admin users
+// okta-admin users removelinkedobject <userId> <relationshipName>
+var removeLinkedObjectCmd = &cobra.Command{
+	Use:   "removelinkedobject <userId> <relationshipName>",
+	Short: "Delete linked objects for a user, relationshipName can be ONLY a primary relationship name.",
+	Long:  `Delete linked objects for a user, relationshipName can be ONLY a primary relationship name.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		relationshipName := args[1]
+		log.Printf("Deleting linked objects for a user %s, relationshipName %s, in %s", userId, relationshipName, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.RemoveLinkedObjectForUser(ctx, userId, relationshipName)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* RemoveRoleFromUser */
-// okta-admin users removerole
+// okta-admin users setlinkedobject <associatedUserId> <primaryRelationshipName> <primaryUserId>
+var setLinkedObjectCmd = &cobra.Command{
+	Use:   "setlinkedobject <associatedUserId> <primaryRelationshipName> <primaryUserId>",
+	Short: "Sets linked objects for a associatedUserId, primaryRelationshipName and primaryUserId.",
+	Long:  `Sets linked objects for a associatedUserId, primaryRelationshipName and primaryUserId.`,
+	Args:  cobra.ExactArgs(3),
+	Run: func(cmd *cobra.Command, args []string) {
+		associatedUserId := args[0]
+		primaryRelationshipName := args[1]
+		primaryUserId := args[2]
+		log.Printf("Setting linked object for a associatedUserId %s, primaryRelationshipName %s, primaryUserId %s, in %s", associatedUserId, primaryRelationshipName, primaryUserId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.SetLinkedObjectForUser(ctx, associatedUserId, primaryRelationshipName, primaryUserId)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* RevokeGrantsForUserAndClient */
-// okta-admin users
+// okta-admin users removerole <userId> <roleId>
+var removeRoleCmd = &cobra.Command{
+	Use:   "removerole <userId> <roleId>",
+	Short: "Unassigns a role from a user.",
+	Long:  `Unassigns a role from a user.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		log.Printf("Removing role %s from user %s in %s", roleId, userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.RemoveRoleFromUser(ctx, userId, roleId)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* RevokeTokenForUserAndClient */
-// okta-admin users
+// okta-admin users revokegrants <userId> <clientId>
+var revokeGrantsCmd = &cobra.Command{
+	Use:   "revokegrants <userId> <clientId>",
+	Short: "Revokes all grants for the specified user and client.",
+	Long:  `Revokes all grants for the specified user and client.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		clientId := args[1]
+		log.Printf("Revoking grants for user %s, client %s, in %s", userId, clientId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.RevokeGrantsForUserAndClient(ctx, userId, clientId)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* RevokeTokensForUserAndClient */
-// okta-admin users
+// okta-admin users revoketoken <userId> <clientId> [<tokenId>]
+var revokeTokenCmd = &cobra.Command{
+	Use:   "revoketoken <userId> <clientId> [<tokenId>]",
+	Short: "Revokes the specified refresh token or all tokens for the user.",
+	Long: `Revokes all tokens for the specified user and client (if supplied).
+	[if no token is supplied] Revokes all refresh tokens issued for the specified User and Client.`,
+	Args: cobra.RangeArgs(2, 3),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		clientId := args[1]
+		if len(args) == 3 {
+			tokenId := args[2]
+			log.Printf("Revoking token %s for user %s, client %s, in %s", tokenId, userId, clientId, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.RevokeTokenForUserAndClient(ctx, userId, clientId, tokenId)
+			processOutput(nil, resp, err)
+		} else {
+			log.Printf("Revoking all tokens for user %s, client %s, in %s", userId, clientId, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.RevokeTokensForUserAndClient(ctx, userId, clientId)
+			processOutput(nil, resp, err)
+		}
+	},
+}
 
-/* RevokeUserGrant */
-// okta-admin users
+// okta-admin users revokegrant <userId> [<grantId>]
+var revokeGrantCmd = &cobra.Command{
+	Use:   "revokegrant <userId> [<grantId>]",
+	Short: "Revokes one grant or all grants for a specified user.",
+	Long: `Revokes one grant for a specified user (if grantId is supplied).
+	[if grantId is not supplied] Revokes all grants for a specified user.`,
+	Args: cobra.RangeArgs(1, 2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		if len(args) == 2 {
+			grantId := args[1]
+			log.Printf("Revoking grant %s for user %s, in %s", grantId, userId, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.RevokeUserGrant(ctx, userId, grantId)
+			processOutput(nil, resp, err)
+		} else {
+			log.Printf("Revoking all grants for user %s, in %s", userId, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.RevokeUserGrants(ctx, userId)
+			processOutput(nil, resp, err)
+		}
+	},
+}
 
-/* RevokeUserGrants */
-// okta-admin users
+// okta-admin users addallappsastargettorole <userId> <roleId>
+var addAllAppsAsTargetToRoleCmd = &cobra.Command{
+	Use:   "addallappsastargettorole <userId> <roleId>",
+	Short: "Add all apps as target to role.",
+	Long:  `Add all apps as target to role.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		log.Printf("Adding all apps as target to role %s for user %s, in %s", roleId, userId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.User.AddAllAppsAsTargetToRole(ctx, userId, roleId)
+		processOutput(nil, resp, err)
+	},
+}
 
-/* SetLinkedObjectForUser */
-// okta-admin users
-
-/* AddAllAppsAsTargetToRole */
-// okta-admin users
-
-/* AddApplicationTargetToAdminRoleForUser */
-// okta-admin users
-
-/* AddApplicationTargetToAppAdminRoleForUser */
-// okta-admin users
-
-/* AddGroupTargetToRole */
-// okta-admin users
+// okta-admin users addapptgtstoadminroleforuser <userId> <roleId> <appName> [<applicationId>]
+var addAppTgtsToAdminRoleForUserCmd = &cobra.Command{
+	Use:   "addapptgtstoadminroleforuser <userId> <roleId> <appName> [<applicationId>]",
+	Short: "Add App Instance Target to App Administrator Role given to a User.",
+	Long:  `Add App Instance Target to App Administrator Role given to a User.`,
+	Args:  cobra.RangeArgs(3, 4),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		roleId := args[1]
+		appName := args[2]
+		if len(args) == 4 {
+			applicationId := args[3]
+			log.Printf("Adding App Instance Target to App Administrator Role given for user %s, role %s, appname %s, appid %s, in %s", userId, roleId, appName, applicationId, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.AddApplicationTargetToAppAdminRoleForUser(ctx, userId, roleId, appName, applicationId)
+			processOutput(nil, resp, err)
+		} else {
+			log.Printf("Adding App Instance Target to App Administrator Role given for user %s, role %s, appname %s, in %s", userId, roleId, appName, viper.GetString("org"))
+			ctx, client := getOrCreateClient()
+			resp, err := client.User.AddApplicationTargetToAdminRoleForUser(ctx, userId, roleId, appName)
+			processOutput(nil, resp, err)
+		}
+	},
+}
 
 //
 // Mutation Operations (return resp code)
@@ -668,7 +837,18 @@ func init() {
 	usersCmd.AddCommand(resetFactorsCmd)
 	usersCmd.AddCommand(assignRoleCmd)
 	usersCmd.AddCommand(clearSessionsCmd)
+	usersCmd.AddCommand(removeAppTgtCmd)
+	usersCmd.AddCommand(removeGroupTargetFromRoleCmd)
+	usersCmd.AddCommand(addGroupTargetToRoleCmd)
+	usersCmd.AddCommand(removeLinkedObjectCmd)
+	usersCmd.AddCommand(setLinkedObjectCmd)
+	usersCmd.AddCommand(removeRoleCmd)
+	usersCmd.AddCommand(revokeGrantsCmd)
+	usersCmd.AddCommand(revokeTokenCmd)
+	usersCmd.AddCommand(revokeGrantCmd)
+	usersCmd.AddCommand(addAllAppsAsTargetToRoleCmd)
+	usersCmd.AddCommand(addAppTgtsToAdminRoleForUserCmd)
 
-	generateMarkdownDocs(usersCmd, "./docs/users/")
+	// generateMarkdownDocs(usersCmd, "./docs/users/")
 
 }

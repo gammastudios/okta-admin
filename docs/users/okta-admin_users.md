@@ -30,8 +30,13 @@ okta-admin users create
 
 * [okta-admin](okta-admin.md)	 - A brief description of your application
 * [okta-admin users activate](okta-admin_users_activate.md)	 - Activates a user.
+* [okta-admin users addallappsastargettorole](okta-admin_users_addallappsastargettorole.md)	 - Add all apps as target to role.
+* [okta-admin users addapptgtstoadminroleforuser](okta-admin_users_addapptgtstoadminroleforuser.md)	 - Add App Instance Target to App Administrator Role given to a User.
+* [okta-admin users addgrouptgttorole](okta-admin_users_addgrouptgttorole.md)	 - Adds group target from role for a user.
+* [okta-admin users assignrole](okta-admin_users_assignrole.md)	 - Assigns a role to a user.
 * [okta-admin users changepwd](okta-admin_users_changepwd.md)	 - Changes a user password.
 * [okta-admin users changerecoveryquestion](okta-admin_users_changerecoveryquestion.md)	 - Changes a users recovery question and answer.
+* [okta-admin users clearsessions](okta-admin_users_clearsessions.md)	 - Removes all active identity provider sessions.
 * [okta-admin users create](okta-admin_users_create.md)	 - Creates a new user in your Okta organization with or without credentials.
 * [okta-admin users deactivate](okta-admin_users_deactivate.md)	 - Deactivates a user.
 * [okta-admin users delete](okta-admin_users_delete.md)	 - Deletes a user permanently.
@@ -53,8 +58,16 @@ okta-admin users create
 * [okta-admin users listroles](okta-admin_users_listroles.md)	 - Lists all roles assigned to a user.
 * [okta-admin users partialupdate](okta-admin_users_partialupdate.md)	 - Update a users profile and/or credentials.
 * [okta-admin users reactivate](okta-admin_users_reactivate.md)	 - Reactivates a user.
+* [okta-admin users removeapptarget](okta-admin_users_removeapptarget.md)	 - Remove App Instance Target to App Administrator Role given to a User.
+* [okta-admin users removegrouptgtfromrole](okta-admin_users_removegrouptgtfromrole.md)	 - Removes group target from role for a user.
+* [okta-admin users removelinkedobject](okta-admin_users_removelinkedobject.md)	 - Delete linked objects for a user, relationshipName can be ONLY a primary relationship name.
+* [okta-admin users removerole](okta-admin_users_removerole.md)	 - Unassigns a role from a user.
 * [okta-admin users resetfactors](okta-admin_users_resetfactors.md)	 - This operation resets all factors for the specified user.
 * [okta-admin users resetpwd](okta-admin_users_resetpwd.md)	 - Generates a one-time token (OTT) that can be used to reset a users password.
+* [okta-admin users revokegrant](okta-admin_users_revokegrant.md)	 - Revokes one grant or all grants for a specified user.
+* [okta-admin users revokegrants](okta-admin_users_revokegrants.md)	 - Revokes all grants for the specified user and client.
+* [okta-admin users revoketoken](okta-admin_users_revoketoken.md)	 - Revokes the specified refresh token or all tokens for the user.
+* [okta-admin users setlinkedobject](okta-admin_users_setlinkedobject.md)	 - Sets linked objects for a associatedUserId, primaryRelationshipName and primaryUserId.
 * [okta-admin users suspend](okta-admin_users_suspend.md)	 - Suspends a user.
 * [okta-admin users unlock](okta-admin_users_unlock.md)	 - Unlocks a user with a LOCKED_OUT status.
 * [okta-admin users unsuspend](okta-admin_users_unsuspend.md)	 - Unsuspends a user.
