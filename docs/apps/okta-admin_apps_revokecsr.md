@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps revokecsr
 
-Enumerates apps added to your organization.
+Revokes a CSR for an application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Revokes a CSR for an application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps revokecsr <appId> <csrId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for revokecsr
 ```
 
 ### SEE ALSO

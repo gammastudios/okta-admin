@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps listcsrs
 
-Enumerates apps added to your organization.
+Enumerates Certificate Signing Requests for an application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Enumerates Certificate Signing Requests for an application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps listcsrs <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for listcsrs
 ```
 
 ### SEE ALSO

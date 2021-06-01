@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps createoidcapp
 
-Enumerates apps added to your organization.
+Adds a new application to your Okta organization.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Adds a new application to your Okta organization.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps createoidcapp <appName> <loginRedirectUrl> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for createoidcapp
 ```
 
 ### SEE ALSO

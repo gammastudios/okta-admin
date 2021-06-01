@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps get
 
-Enumerates apps added to your organization.
+Fetches an application from your Okta organization by ID.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Fetches an application from your Okta organization by ID.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps get <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for get
 ```
 
 ### SEE ALSO

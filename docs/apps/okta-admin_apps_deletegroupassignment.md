@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps deletegroupassignment
 
-Enumerates apps added to your organization.
+Removes a group assignment from an application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Removes a group assignment from an application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps deletegroupassignment <appId> <groupId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for deletegroupassignment
 ```
 
 ### SEE ALSO

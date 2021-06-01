@@ -46,6 +46,7 @@ var listUsersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists users in your organization.",
 	Long:  `Lists users in your organization.`,
+	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryParams := retQueryParams(filter)
 		log.Printf("Listing users in %s", viper.GetString("org"))

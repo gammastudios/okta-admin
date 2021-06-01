@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps listscopeconsentgrants
 
-Enumerates apps added to your organization.
+Lists all scope consent grants for the application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Lists all scope consent grants for the application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps listscopeconsentgrants <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for listscopeconsentgrants
 ```
 
 ### SEE ALSO

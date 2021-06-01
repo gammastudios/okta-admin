@@ -44,6 +44,7 @@ var listIdpsCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Enumerates IdPs in your organization with pagination.",
 	Long:  `Enumerates IdPs in your organization with pagination. A subset of IdPs can be returned that match a supported filter expression or query.`,
+	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryParams := retQueryParams(filter)
 		log.Printf("Listing idps in %s", viper.GetString("org"))

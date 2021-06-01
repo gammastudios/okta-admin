@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps listtokens
 
-Enumerates apps added to your organization.
+Lists all tokens for the application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Lists all tokens for the application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps listtokens <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for listtokens
 ```
 
 ### SEE ALSO

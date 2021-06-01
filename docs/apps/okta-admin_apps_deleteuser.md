@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps deleteuser
 
-Enumerates apps added to your organization.
+Removes an assignment for a user from an application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Removes an assignment for a user from an application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps deleteuser <appId> <userId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for deleteuser
 ```
 
 ### SEE ALSO

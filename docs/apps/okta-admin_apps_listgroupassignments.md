@@ -1,19 +1,19 @@
-## okta-admin apps list
+## okta-admin apps listgroupassignments
 
-Enumerates apps added to your organization.
+Enumerates group assignments for an application.
 
 ### Synopsis
 
-Enumerates apps added to your organization. A subset of apps can be returned that match a supported filter expression or query.
+Enumerates group assignments for an application.
 
 ```
-okta-admin apps list [flags]
+okta-admin apps listgroupassignments <appId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for listgroupassignments
 ```
 
 ### SEE ALSO

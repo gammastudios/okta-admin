@@ -150,7 +150,7 @@ func retResults(data interface{}, jsonquery string) {
 
 func processOutput(data interface{}, resp *okta.Response, err error) {
 	if err != nil {
-		log.Println(err)
+		log.Println(err.Error())
 	} else {
 		log.Println(resp.Status)
 		if data != nil {
