@@ -18,6 +18,7 @@ package cmd
 import (
 	"log"
 
+	"github.com/okta/okta-sdk-golang/v2/okta"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -64,6 +65,31 @@ var listGroupUsersCmd = &cobra.Command{
 	},
 }
 
+// okta-admin groups create
+var createGroupCmd = &cobra.Command{
+	Use:   "create <name> [<description>]",
+	Short: "Adds a new group with OKTA_GROUP type to your organization.",
+	Long:  `Adds a new group with OKTA_GROUP type to your organization.`,
+	Args:  cobra.RangeArgs(1, 2),
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+		description := ""
+		if len(args) == 2 {
+			description = args[1]
+		}
+		log.Printf("Creating new group %s in %s", name, viper.GetString("org"))
+		gp := &okta.GroupProfile{
+			Name:        name,
+			Description: description,
+		}
+		g := &okta.Group{
+			Profile: gp,
+		}
+		ctx, client := getOrCreateClient()
+		processOutput(client.Group.CreateGroup(ctx, *g))
+	},
+}
+
 /* groups client.Group
 ActivateGroupRule
 AddApplicationInstanceTargetToAppAdminRoleGivenToGroup
@@ -71,7 +97,6 @@ AddApplicationTargetToAdminRoleGivenToGroup
 AddGroupTargetToGroupAdministratorRoleForGroup
 AddUserToGroup
 AssignRoleToGroup
-CreateGroup
 CreateGroupRule
 DeactivateGroupRule
 DeleteGroup
@@ -97,6 +122,8 @@ func init() {
 	rootCmd.AddCommand(groupsCmd)
 	groupsCmd.AddCommand(listGroupsCmd)
 	groupsCmd.AddCommand(listGroupUsersCmd)
+	groupsCmd.AddCommand(createGroupCmd)
+
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

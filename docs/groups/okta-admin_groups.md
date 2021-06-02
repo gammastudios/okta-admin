@@ -20,6 +20,7 @@ okta-admin groups create
 ### SEE ALSO
 
 * [okta-admin](okta-admin.md)	 - A brief description of your application
+* [okta-admin groups create](okta-admin_groups_create.md)	 - Adds a new group with OKTA_GROUP type to your organization.
 * [okta-admin groups list](okta-admin_groups_list.md)	 - Lists groups in your organization.
 * [okta-admin groups listusers](okta-admin_groups_listusers.md)	 - Enumerates all users that are a member of a group.
 
