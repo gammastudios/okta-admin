@@ -16,23 +16,51 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // groupsCmd represents the groups command
 var groupsCmd = &cobra.Command{
 	Use:   "groups",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "The Okta Groups API provides operations to manage Okta Groups and their user members for your organization.",
+	Long: `
+The Okta Groups API provides operations to manage Okta Groups and their user members for your organization. For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+okta-admin groups list
+okta-admin groups create
+	`,
+	Args: cobra.MinimumNArgs(1),
+}
+
+// okta-admin groups list
+var listGroupsCmd = &cobra.Command{
+	Use:   "list",
+	Short: "Lists groups in your organization.",
+	Long:  `Lists groups in your organization.`,
+	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("groups called")
+		queryParams := retQueryParams(filter)
+		log.Printf("Listing groups in %s", viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.Group.ListGroups(ctx, queryParams))
+	},
+}
+
+// okta-admin groups listusers
+var listGroupUsersCmd = &cobra.Command{
+	Use:   "listusers",
+	Short: "Enumerates all users that are a member of a group.",
+	Long:  `Enumerates all users that are a member of a group.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		groupId := args[0]
+		queryParams := retQueryParams(filter)
+		log.Printf("Listing groups in %s", viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		processOutput(client.Group.ListGroupUsers(ctx, groupId, queryParams))
 	},
 }
 
@@ -56,8 +84,6 @@ ListAssignedApplicationsForGroup
 ListGroupAssignedRoles
 ListGroupRules
 ListGroupTargetsForGroupRole
-ListGroupUsers
-ListGroups
 RemoveApplicationTargetFromAdministratorRoleGivenToGroup
 RemoveApplicationTargetFromApplicationAdministratorRoleGivenToGroup
 RemoveGroupTargetFromGroupAdministratorRoleGivenToGroup
@@ -69,7 +95,8 @@ UpdateGroupRule
 
 func init() {
 	rootCmd.AddCommand(groupsCmd)
-
+	groupsCmd.AddCommand(listGroupsCmd)
+	groupsCmd.AddCommand(listGroupUsersCmd)
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

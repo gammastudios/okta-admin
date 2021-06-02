@@ -223,13 +223,14 @@ var createApplicationCmd = &cobra.Command{
 
 // okta-admin apps createoidcapp <appName> <loginRedirectUrl>
 var createOidcApplicationCmd = &cobra.Command{
-	Use:   "createoidcapp <appName> <loginRedirectUrl>",
-	Short: "Adds a new application to your Okta organization.",
-	Long:  `Adds a new application to your Okta organization.`,
-	Args:  cobra.ExactArgs(2),
+	Use:   "createoidcapp <appName> <appType web|native|browser|spa|service> <loginRedirectUrl>",
+	Short: "Adds a new OIDC application to your Okta organization.",
+	Long:  `Adds a new OIDC application to your Okta organization.`,
+	Args:  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
 		appName := args[0]
-		loginRedirectUrl := args[1]
+		appType := args[1]
+		loginRedirectUrl := args[2]
 		queryParams := retQueryParams(filter)
 
 		const (
@@ -240,15 +241,36 @@ var createOidcApplicationCmd = &cobra.Command{
 			clientCredentials string = "client_credentials"
 			code              string = "code"
 			token             string = "token"
+			id_token          string = "id_token"
 		)
-		grantTypes := []string{authorizationCode, implicit}
+
+		var grantTypes []string
+		var responseTypes []string
+
+		switch appType {
+		case "web":
+			grantTypes = []string{authorizationCode}
+			responseTypes = []string{code}
+		case "native":
+			grantTypes = []string{authorizationCode}
+			responseTypes = []string{code}
+		case "browser", "spa":
+			appType = "browser"
+			grantTypes = []string{authorizationCode, implicit, refreshToken}
+			responseTypes = []string{code, token, id_token}
+		case "service":
+			grantTypes = []string{clientCredentials}
+			responseTypes = []string{token}
+		default:
+			log.Println("appType argument must be 'web', 'native', 'browser', 'spa' or 'service' only")
+		}
+
 		oktaGrantTypes := make([]*okta.OAuthGrantType, len(grantTypes))
 		for i := range grantTypes {
 			gt := okta.OAuthGrantType(grantTypes[i])
 			oktaGrantTypes[i] = &gt
 		}
 
-		responseTypes := []string{code, token}
 		oktaResponseTypes := make([]*okta.OAuthResponseType, len(responseTypes))
 		for i := range responseTypes {
 			gt := okta.OAuthResponseType(responseTypes[i])
@@ -258,21 +280,38 @@ var createOidcApplicationCmd = &cobra.Command{
 		oktaRedirectUris := []string{loginRedirectUrl}
 
 		appSettingsClient := okta.NewOpenIdConnectApplicationSettingsClient()
-		appSettingsClient.ApplicationType = "native"
-		appSettingsClient.ClientUri = "https://example.com/client"
-		appSettingsClient.LogoUri = "https://example.com/assets/images/logo-new.png"
-		appSettingsClient.PolicyUri = "https://example.com/client/policy"
-		appSettingsClient.TosUri = "https://example.com/client/tos"
+		appSettingsClient.ApplicationType = appType
+		//appSettingsClient.ClientUri = "https://example.com/client"
+		//appSettingsClient.LogoUri = "https://example.com/assets/images/logo-new.png"
+		//appSettingsClient.PolicyUri = "https://example.com/client/policy"
+		//appSettingsClient.TosUri = "https://example.com/client/tos"
 		appSettingsClient.GrantTypes = oktaGrantTypes
 		appSettingsClient.RedirectUris = oktaRedirectUris
 		appSettingsClient.ResponseTypes = oktaResponseTypes
+		appSettingsClient.ConsentMethod = "REQUIRED"
 
 		appSettings := okta.NewOpenIdConnectApplicationSettings()
 		appSettings.OauthClient = appSettingsClient
 
+		/*
+			app.Credentials = &okta.OAuthApplicationCredentials{
+				OauthClient: &okta.ApplicationCredentialsOAuthClient{
+					AutoKeyRotation:         boolPtr(d.Get("auto_key_rotation").(bool)),
+					ClientId:                d.Get("client_id").(string),
+					TokenEndpointAuthMethod: authMethod,
+				},
+			}
+		*/
+
+		appCredentials := okta.NewOAuthApplicationCredentials()
+		oauthClient := okta.NewApplicationCredentialsOAuthClient()
+		oauthClient.TokenEndpointAuthMethod = "none"
+		appCredentials.OauthClient = oauthClient
+
 		app := okta.NewOpenIdConnectApplication()
 		app.Label = appName
 		app.Settings = appSettings
+		app.Credentials = appCredentials
 
 		//var jsonData []byte
 		//jsonData, err := json.Marshal(app)
