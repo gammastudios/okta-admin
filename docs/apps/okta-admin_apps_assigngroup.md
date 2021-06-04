@@ -1,19 +1,19 @@
-## okta-admin apps deleteuser
+## okta-admin apps assigngroup
 
-Removes an assignment for a user from an application.
+Assigns a group to an application.
 
 ### Synopsis
 
-Removes an assignment for a user from an application.
+Assigns a group to an application.
 
 ```
-okta-admin apps deleteuser <appId> <userId> [flags]
+okta-admin apps assigngroup <appId> <groupId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for deleteuser
+  -h, --help   help for assigngroup
 ```
 
 ### SEE ALSO

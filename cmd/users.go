@@ -18,8 +18,10 @@ package cmd
 import (
 	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/okta/okta-sdk-golang/v2/okta"
+	"github.com/okta/okta-sdk-golang/v2/okta/query"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -443,18 +445,55 @@ var addAppTgtsToAdminRoleForUserCmd = &cobra.Command{
 
 // okta-admin users create <jsonBody>
 var createUserCmd = &cobra.Command{
-	Use:   "create <jsonBody>",
+	Use:   "create <email> <firstName> <lastName> <activate> [<password>]",
 	Short: "Creates a new user in your Okta organization with or without credentials.",
 	Long:  `Creates a new user in your Okta organization with or without credentials.`,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(4, 5),
 	Run: func(cmd *cobra.Command, args []string) {
-		jsonBody := args[0]
-		queryParams := retQueryParams(filter)
-		log.Printf("Creating new user in %s", viper.GetString("org"))
+		email := args[0]
+		firstName := args[1]
+		lastName := args[2]
+		var activateUser bool
+		var password string
+		activate := strings.ToLower(args[3])
+		switch activate {
+		case "true":
+			activateUser = true
+		case "false":
+			activateUser = false
+		default:
+			activateUser = false
+			log.Println("activate argument must be 'true' or 'false', defaulting to 'false'")
+		}
+		profile := okta.UserProfile{}
+		profile["firstName"] = firstName
+		profile["lastName"] = lastName
+		profile["email"] = email
+		profile["login"] = profile["email"]
+		u := &okta.CreateUserRequest{
+			Profile: &profile,
+		}
+		if len(args) == 5 {
+			password = args[4]
+		} else {
+			log.Println("Password not supplied, generating random one...")
+			var err error
+			password, err = generateRandomString(32)
+			if err != nil {
+				panic(err)
+			}
+		}
+		p := &okta.PasswordCredential{
+			Value: password,
+		}
+		uc := &okta.UserCredentials{
+			Password: p,
+		}
+		u.Credentials = uc
+		queryParams := query.NewQueryParams(query.WithActivate(activateUser))
+		log.Printf("Creating new user %s %s (%s) in %s", firstName, lastName, email, viper.GetString("org"))
 		ctx, client := getOrCreateClient()
-		var body okta.CreateUserRequest
-		json.Unmarshal([]byte(jsonBody), &body)
-		processOutput(client.User.CreateUser(ctx, body, queryParams))
+		processOutput(client.User.CreateUser(ctx, *u, queryParams))
 	},
 }
 

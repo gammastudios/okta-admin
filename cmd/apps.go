@@ -327,7 +327,23 @@ var createOidcApplicationCmd = &cobra.Command{
 }
 
 // UpdateApplication
-// CreateApplicationGroupAssignment
+
+// okta-admin apps assigngroup <appId> <groupId>
+var createApplicationGroupAssignmentCmd = &cobra.Command{
+	Use:   "assigngroup <appId> <groupId>",
+	Short: "Assigns a group to an application.",
+	Long:  `Assigns a group to an application.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		appId := args[0]
+		groupId := args[1]
+		log.Printf("Creating new application group assignment (app %s, group %s) in %s", appId, groupId, viper.GetString("org"))
+		assignment := &okta.ApplicationGroupAssignment{}
+		ctx, client := getOrCreateClient()
+		processOutput(client.Application.CreateApplicationGroupAssignment(ctx, appId, groupId, *assignment))
+	},
+}
+
 // UpdateApplicationUser
 
 //
@@ -485,6 +501,7 @@ func init() {
 	appsCmd.AddCommand(listAppScopeConsentGrantsCmd)
 	appsCmd.AddCommand(getAppCmd)
 	appsCmd.AddCommand(createOidcApplicationCmd)
+	appsCmd.AddCommand(createApplicationGroupAssignmentCmd)
 
 	generateMarkdownDocs(appsCmd, "./docs/apps/")
 

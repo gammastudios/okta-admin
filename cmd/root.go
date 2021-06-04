@@ -16,10 +16,15 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/okta/okta-sdk-golang/v2/okta"
@@ -101,6 +106,16 @@ func checkEnvVar(envvar string) {
 //
 // Common functions
 //
+func generateRandomString(strLength int) (string, error) {
+	b := make([]byte, strLength)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	} else {
+		return base64.URLEncoding.EncodeToString(b), nil
+	}
+}
+
 func getOrCreateClient() (oktaCtx context.Context, oktaClient *okta.Client) {
 	org := viper.GetString("org")
 	apitoken := viper.GetString("apitoken")
@@ -156,6 +171,32 @@ func processOutput(data interface{}, resp *okta.Response, err error) {
 		if data != nil {
 			retResults(data, jsonquery)
 		}
+	}
+}
+
+func processHttpOutput(url string, jsonData []byte) {
+	org := viper.GetString("org")
+	apitoken := viper.GetString("apitoken")
+	reqBody := bytes.NewReader(jsonData)
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/%s", org, url), reqBody)
+	req.Header.Set("Authorization", fmt.Sprintf("SSWS %s", apitoken))
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	//Handle Error
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	} else {
+		log.Println(resp.Status)
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	} else {
+		fmt.Printf(string(respBody))
 	}
 }
 

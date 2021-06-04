@@ -1,19 +1,19 @@
-## okta-admin groups create
+## okta-admin groups adduser
 
-Adds a new group with OKTA_GROUP type to your organization.
+Adds a user to a group with OKTA_GROUP type.
 
 ### Synopsis
 
-Adds a new group with OKTA_GROUP type to your organization.
+Adds a user to a group with OKTA_GROUP type.
 
 ```
-okta-admin groups create <name> [<description>] [flags]
+okta-admin groups adduser <groupId> <userId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for create
+  -h, --help   help for adduser
 ```
 
 ### SEE ALSO

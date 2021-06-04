@@ -90,12 +90,27 @@ var createGroupCmd = &cobra.Command{
 	},
 }
 
+// okta-admin groups adduser <groupId> <userId>
+var addUsertoGroupCmd = &cobra.Command{
+	Use:   "adduser <groupId> <userId>",
+	Short: "Adds a user to a group with OKTA_GROUP type.",
+	Long:  `Adds a user to a group with OKTA_GROUP type.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		groupId := args[0]
+		userId := args[1]
+		log.Printf("Adding user %s to group %s in %s", userId, groupId, viper.GetString("org"))
+		ctx, client := getOrCreateClient()
+		resp, err := client.Group.AddUserToGroup(ctx, groupId, userId)
+		processOutput(nil, resp, err)
+	},
+}
+
 /* groups client.Group
 ActivateGroupRule
 AddApplicationInstanceTargetToAppAdminRoleGivenToGroup
 AddApplicationTargetToAdminRoleGivenToGroup
 AddGroupTargetToGroupAdministratorRoleForGroup
-AddUserToGroup
 AssignRoleToGroup
 CreateGroupRule
 DeactivateGroupRule
@@ -123,15 +138,6 @@ func init() {
 	groupsCmd.AddCommand(listGroupsCmd)
 	groupsCmd.AddCommand(listGroupUsersCmd)
 	groupsCmd.AddCommand(createGroupCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// groupsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// groupsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	groupsCmd.AddCommand(addUsertoGroupCmd)
 	generateMarkdownDocs(groupsCmd, "./docs/groups/")
 }

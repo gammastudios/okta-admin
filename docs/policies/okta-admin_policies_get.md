@@ -1,19 +1,19 @@
-## okta-admin policies getrule
+## okta-admin policies get
 
-Gets a policy rule.
+Gets a policy.
 
 ### Synopsis
 
-Gets a policy rule.
+Gets a policy.
 
 ```
-okta-admin policies getrule <policyId> <ruleId> [flags]
+okta-admin policies get <policyId> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for getrule
+  -h, --help   help for get
 ```
 
 ### SEE ALSO
